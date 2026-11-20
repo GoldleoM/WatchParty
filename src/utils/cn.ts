@@ -14,8 +14,8 @@ export function cn(...inputs: ClassValue[]) {
 export function generateRoomId(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  for (const random of crypto.getRandomValues(new Uint32Array(6))) {
+    result += chars[random % chars.length];
   }
   return result;
 }

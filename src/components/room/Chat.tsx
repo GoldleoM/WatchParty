@@ -1,77 +1,44 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { MdSend } from 'react-icons/md';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { MdChatBubbleOutline, MdSend } from 'react-icons/md';
 import { useChat } from '../../hooks/useChat';
 import type { User } from '../../types';
-import { Input } from '../ui/Input';
-import { Button } from '../ui/Button';
-import { Avatar } from '../ui/Avatar';
 
-interface ChatProps {
-  roomId: string | undefined;
-  user: User | null;
-}
-
-export const Chat: React.FC<ChatProps> = ({ roomId, user }) => {
-  const { messages, sendMessage } = useChat(roomId, user);
-  const [text, setText] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+export function Chat({ roomId, user }: { roomId: string; user: User }) {
+  const { messages, sendMessage, error } = useChat(roomId, user);
+  const [draft, setDraft] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState('');
+  const list = useRef<HTMLDivElement>(null);
+  const follow = useRef(true);
   useEffect(() => {
-    scrollToBottom();
+    if (follow.current && list.current) list.current.scrollTop = list.current.scrollHeight;
   }, [messages]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!text.trim()) return;
-    sendMessage(text);
-    setText('');
-  };
-
-  return (
-    <div className="flex flex-col h-full bg-card/50 rounded-lg border border-border overflow-hidden">
-      <div className="p-3 border-b border-border bg-card">
-        <h3 className="font-semibold text-sm">Room Chat</h3>
-      </div>
-      
-      <div className="flex-1 overflow-y-auto p-3 space-y-4">
-        {messages.map((msg) => {
-          const isMe = msg.uid === user?.uid;
-          return (
-            <div key={msg.id} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-              <Avatar name={msg.displayName} size="sm" className="flex-shrink-0" />
-              <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%]`}>
-                <span className="text-xs text-muted-foreground mb-1 mx-1">{msg.displayName}</span>
-                <div 
-                  className={`px-3 py-2 rounded-2xl text-sm ${
-                    isMe 
-                      ? 'bg-primary text-primary-foreground rounded-tr-none' 
-                      : 'bg-secondary text-secondary-foreground rounded-tl-none'
-                  }`}
-                >
-                  {msg.text}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <form onSubmit={handleSubmit} className="p-3 border-t border-border bg-card flex gap-2">
-        <Input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Type a message..."
-          className="h-9"
-        />
-        <Button type="submit" size="sm" disabled={!text.trim()} className="px-3">
-          <MdSend className="w-4 h-4" />
-        </Button>
-      </form>
+  async function send(event: FormEvent) {
+    event.preventDefault();
+    if (!draft.trim() || sending) return;
+    setSending(true);
+    setSendError('');
+    try {
+      follow.current = true;
+      await sendMessage(draft);
+      setDraft(current => current === draft ? '' : current);
+    } catch { setSendError('Message could not be sent. Your draft is saved here.'); }
+    finally { setSending(false); }
+  }
+  return <section className="panel chat">
+    <h2><MdChatBubbleOutline /> Room chat</h2>
+    <div className="chat-log" role="log" aria-label="Room messages" ref={list} onScroll={e => {
+      const el = e.currentTarget;
+      follow.current = el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+    }}>
+      {messages.length === 0 && <p className="empty-chat">Say hello to the room.</p>}
+      {messages.map(msg => <div key={msg.id} className={'message' + (msg.uid === user.uid ? ' own' : '')}>
+        <b>{msg.displayName}</b><p>{msg.text}</p>
+      </div>)}
     </div>
-  );
-};
+    {(error || sendError) && <p role="alert" className="error">{sendError || error}</p>}
+    <form onSubmit={send} className="chat-form"><input aria-label="Message" maxLength={2000} value={draft} placeholder="Message the room…" onChange={e => setDraft(e.target.value)} />
+      <button className="btn primary icon-btn" aria-label="Send message" disabled={!draft.trim() || sending}><MdSend /></button>
+    </form>
+  </section>;
+}

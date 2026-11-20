@@ -1,60 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { collection, query, orderBy, onSnapshot, addDoc, limit, where } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import type { Reaction, User } from '../types';
 
-export const useReactions = (roomId: string | undefined, user: User | null) => {
+export function useReactions(roomId: string, user: User, joined: boolean) {
   const [reactions, setReactions] = useState<Reaction[]>([]);
-
+  const [error, setError] = useState('');
   useEffect(() => {
-    if (!roomId) return;
-
-    // Only fetch reactions from the last 10 seconds to avoid fetching old ones
-    const recentThreshold = Date.now() - 10000;
-    const reactionsRef = collection(db, `rooms/${roomId}/reactions`);
-    const q = query(
-      reactionsRef, 
-      where('timestamp', '>', recentThreshold),
-      orderBy('timestamp', 'desc'), 
-      limit(20)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          const reaction = { id: change.doc.id, ...change.doc.data() } as Reaction;
-          
-          // Only show if it's actually recent (within 5 seconds) 
-          // because onSnapshot might fire for existing docs on first load
-          if (Date.now() - reaction.timestamp < 5000) {
-            setReactions(prev => [...prev, reaction]);
-            
-            // Remove after 2.5 seconds (allowing time for the 2s animation to finish)
-            setTimeout(() => {
-              setReactions(prev => prev.filter(r => r.id !== reaction.id));
-            }, 2500);
-          }
-        }
-      });
-    });
-
-    return () => unsubscribe();
-  }, [roomId]);
-
-  const sendReaction = async (emoji: string) => {
-    if (!roomId || !user) return;
-
+    if (!joined) return;
+    const timers = new Set<number>();
+    const recent = query(collection(db, 'rooms', roomId, 'reactions'), where('timestamp', '>', Date.now() - 5000), orderBy('timestamp', 'desc'), limit(20));
+    const unsubscribe = onSnapshot(recent, snap => {
+      for (const change of snap.docChanges()) {
+        const reaction = { ...change.doc.data(), id: change.doc.id } as Reaction;
+        if (change.type !== 'added' || Date.now() - reaction.timestamp >= 5000) continue;
+        setReactions(prev => [...prev, reaction]);
+        const timer = window.setTimeout(() => {
+          setReactions(prev => prev.filter(r => r.id !== reaction.id));
+          timers.delete(timer);
+        }, 2400);
+        timers.add(timer);
+      }
+    }, () => setError('Reactions could not connect.'));
+    return () => { unsubscribe(); timers.forEach(clearTimeout); };
+  }, [roomId, joined]);
+  async function sendReaction(emoji: string) {
     try {
-      const reactionsRef = collection(db, `rooms/${roomId}/reactions`);
-      await addDoc(reactionsRef, {
-        uid: user.uid,
-        emoji,
-        timestamp: Date.now(),
-      });
-    } catch (e) {
-      console.error('Failed to send reaction', e);
-    }
-  };
-
-  return { reactions, sendReaction };
-};
+      await addDoc(collection(db, 'rooms', roomId, 'reactions'), { uid: user.uid, emoji, timestamp: Date.now() });
+      setError('');
+    } catch { setError('Could not send your reaction. Try again.'); }
+  }
+  return { reactions, sendReaction, error };
+}

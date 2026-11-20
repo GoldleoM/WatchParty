@@ -1,77 +1,29 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { signInAnonymously, onAuthStateChanged, updateProfile } from 'firebase/auth';
-import { auth } from '../firebase/config';
+import { useEffect, useState, type ReactNode } from 'react';
+import { onAuthStateChanged, signInAnonymously, updateProfile } from 'firebase/auth';
+import { auth } from '../firebase/auth';
 import type { User } from '../types';
+import { AuthContext } from './session';
 
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: (displayName: string) => Promise<void>;
-  logout: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        // We ensure displayName is either what they set, or a default
-        setUser({
-          uid: firebaseUser.uid,
-          displayName: firebaseUser.displayName || 'Anonymous',
-          createdAt: Date.now(),
-        });
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
+  useEffect(() => onAuthStateChanged(auth, account => {
+    setUser(account?.displayName ? {
+      uid: account.uid, displayName: account.displayName, createdAt: Date.now(),
+    } : null);
+    setLoading(false);
+  }, () => setLoading(false)), []);
 
-    return () => unsubscribe();
-  }, []);
-
-  const login = async (displayName: string) => {
-    try {
-      const userCredential = await signInAnonymously(auth);
-      await updateProfile(userCredential.user, { displayName });
-      // Update local state immediately before auth state changed fires again
-      setUser({
-        uid: userCredential.user.uid,
-        displayName,
-        createdAt: Date.now(),
-      });
-      // Save display name to local storage for convenience
-      localStorage.setItem('syncwatch_displayname', displayName);
-    } catch (error) {
-      console.error('Error signing in anonymously:', error);
-      throw error;
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await auth.signOut();
-      setUser(null);
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  async function login(name: string) {
+    const displayName = name.trim();
+    if (!displayName || displayName.length > 40) throw new Error('Enter a name of up to 40 characters.');
+    const account = auth.currentUser || (await signInAnonymously(auth)).user;
+    await updateProfile(account, { displayName });
+    const profile = { uid: account.uid, displayName, createdAt: Date.now() };
+    setUser(profile);
+    try { localStorage.setItem('syncwatch_displayname', displayName); } catch { /* Storage is optional. */ }
+    return profile;
   }
-  return context;
-};
+  return <AuthContext.Provider value={{ user, loading, login, logout: () => auth.signOut() }}>{children}</AuthContext.Provider>;
+}

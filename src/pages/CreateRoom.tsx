@@ -1,147 +1,74 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { MdVideoCall } from 'react-icons/md';
-import { doc, setDoc } from 'firebase/firestore';
+import { useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { doc, runTransaction } from 'firebase/firestore';
+import { MdArrowBack, MdFolderOpen, MdLink, MdMovieCreation, MdOndemandVideo } from 'react-icons/md';
+import { rememberedName, useAuth } from '../contexts/session';
 import { db } from '../firebase/config';
-import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { generateRoomId } from '../utils/cn';
 import type { Room, VideoType } from '../types';
+import { generateRoomId } from '../utils/cn';
+import { videoLink } from '../utils/links';
 
-export const CreateRoom: React.FC = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  
-  const [videoType, setVideoType] = useState<VideoType>('youtube');
-  const [videoUrl, setVideoUrl] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
+const sources = [
+  { type: 'youtube', name: 'YouTube', icon: MdOndemandVideo, label: 'YouTube video link', hint: 'Use a watch link, Short, or share link for a video that allows embedding.' },
+  { type: 'mp4', name: 'Video link', icon: MdLink, label: 'Direct video link', hint: 'Use an HTTPS link to a playable video file, such as an MP4.' },
+  { type: 'local', name: 'Local file', icon: MdFolderOpen, label: 'File download link', hint: 'Share a download link. Everyone selects their own copy of the same video in the room.' },
+] as const;
+
+export function CreateRoom() {
+  const { user, loading, login } = useAuth();
+  const [name, setName] = useState(rememberedName);
+  const [type, setType] = useState<VideoType>('youtube');
+  const [urls, setUrls] = useState({ youtube: '', mp4: '', local: '' });
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const source = sources.find(item => item.type === type)!;
 
-  // Redirect to home if not logged in (should be handled by a ProtectedRoute ideally)
-  if (!user) {
-    navigate('/');
-    return null;
+  async function create(event: FormEvent) {
+    event.preventDefault();
+    if (busy || loading) return;
+    const videoUrl = videoLink(urls[type], type);
+    if (!videoUrl) { setError(type === 'youtube' ? 'Enter a link to a specific YouTube video.' : 'Enter a valid HTTPS link to your video.'); return; }
+    if (!user && !name.trim()) { setError('Enter your display name.'); return; }
+    setBusy(true);
+    setError('');
+    try {
+      const host = user || await login(name);
+      const roomId = await runTransaction(db, async tx => {
+        for (let attempt = 0; attempt < 4; attempt++) {
+          const id = generateRoomId();
+          const ref = doc(db, 'rooms', id);
+          if ((await tx.get(ref)).exists()) continue;
+          const now = Date.now();
+          const room: Room = { roomId: id, hostUid: host.uid, hostName: host.displayName, createdAt: now, videoType: type, videoUrl, playing: false, currentTime: 0, playbackRate: 1, lastUpdate: now };
+          tx.set(ref, room);
+          return id;
+        }
+        throw new Error('Room code unavailable');
+      });
+      navigate('/room/' + roomId, { replace: true });
+    } catch {
+      setError('Could not create the room. Check your connection and try again.');
+    } finally { setBusy(false); }
   }
 
-  const validateUrl = (url: string, type: VideoType) => {
-    if (!url) return false;
-    if (type === 'youtube') {
-      const ytRegex = /^(https?:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
-      return ytRegex.test(url);
-    } else {
-      return url.startsWith('http');
-    }
-  };
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    if (!validateUrl(videoUrl, videoType)) {
-      setError(`Invalid ${videoType === 'youtube' ? 'YouTube' : 'Direct Video'} URL`);
-      return;
-    }
-
-    setIsCreating(true);
-    try {
-      const roomId = generateRoomId();
-      
-      const newRoom: Room = {
-        roomId,
-        hostUid: user.uid,
-        hostName: user.displayName,
-        createdAt: Date.now(),
-        videoType,
-        videoUrl,
-        playing: false,
-        currentTime: 0,
-        playbackRate: 1,
-        lastUpdate: Date.now(),
-      };
-
-      await setDoc(doc(db, 'rooms', roomId), newRoom);
-      
-      navigate(`/room/${roomId}`);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to create room. Please try again.');
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="max-w-md w-full bg-card/80 backdrop-blur-xl border border-border rounded-2xl p-8 shadow-xl"
-      >
-        <div className="text-center mb-8">
-          <MdVideoCall className="w-12 h-12 text-primary mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-foreground">Create Room</h1>
-          <p className="text-muted-foreground mt-2">Set up your watch party</p>
-        </div>
-
-        <form onSubmit={handleCreate} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Video Source</label>
-            <div className="grid grid-cols-2 gap-4">
-              <Button
-                type="button"
-                variant={videoType === 'youtube' ? 'primary' : 'secondary'}
-                onClick={() => setVideoType('youtube')}
-              >
-                YouTube
-              </Button>
-              <Button
-                type="button"
-                variant={videoType === 'mp4' ? 'primary' : 'secondary'}
-                onClick={() => setVideoType('mp4')}
-              >
-                Direct Stream
-              </Button>
-              <Button
-                type="button"
-                variant={videoType === 'local' ? 'primary' : 'secondary'}
-                onClick={() => setVideoType('local')}
-                className="col-span-2"
-              >
-                Local File Sync (Download Required)
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              {videoType === 'youtube' && 'YouTube Video URL'}
-              {videoType === 'mp4' && 'Direct Video URL'}
-              {videoType === 'local' && 'Download Link for Guests'}
-            </label>
-            <Input
-              placeholder={
-                videoType === 'youtube' ? 'https://youtube.com/watch?v=...' : 
-                videoType === 'local' ? 'https://drive.google.com/file/d/...' :
-                'https://example.com/video or any direct stream link'
-              }
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-            />
-            {error && <p className="text-sm text-destructive mt-1">{error}</p>}
-          </div>
-
-          <Button 
-            type="submit"
-            className="w-full h-12 text-lg mt-4"
-            disabled={!videoUrl.trim() || isCreating}
-            isLoading={isCreating}
-          >
-            Create & Join Room
-          </Button>
-        </form>
-      </motion.div>
-    </div>
-  );
-};
+  return <div className="setup-wrap">
+    <Link className="back-link" to="/"><MdArrowBack /> Back to lobby</Link>
+    <section className="panel form-panel">
+      <span className="card-icon"><MdMovieCreation /></span>
+      <h1>Create a room</h1><p>Choose what everyone will watch.</p>
+      <form className="stack" onSubmit={create}>
+        {!user && <label>Your display name<input value={name} onChange={e => setName(e.target.value)} maxLength={40} required autoComplete="nickname" placeholder="Name in the room" /></label>}
+        <fieldset><legend>Video source</legend><div className="source-options">
+          {sources.map(item => <label key={item.type} className="source-option">
+            <input className="visually-hidden" type="radio" name="source" checked={item.type === type} onChange={() => { setType(item.type); setError(''); }} />
+            <item.icon />{item.name}
+          </label>)}
+        </div></fieldset>
+        <label>{source.label}<input value={urls[type]} onChange={e => { setUrls({ ...urls, [type]: e.target.value }); setError(''); }} required placeholder={type === 'youtube' ? 'https://youtu.be/…' : 'https://…'} inputMode="url" autoComplete="off" spellCheck={false} aria-describedby="source-hint" /><small id="source-hint">{source.hint}</small></label>
+        {error && <p className="error" role="alert">{error}</p>}
+        <button className="btn primary" disabled={busy || loading}>{busy ? 'Creating room…' : 'Create room'}</button>
+      </form>
+    </section>
+  </div>;
+}

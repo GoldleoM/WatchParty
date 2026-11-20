@@ -1,350 +1,107 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { MdContentCopy, MdFolderOpen, MdMeetingRoom } from 'react-icons/md';
 import { db } from '../firebase/config';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MdFullscreen, MdFullscreenExit } from 'react-icons/md';
+import { rememberedName, useAuth } from '../contexts/session';
 import { useRoom } from '../hooks/useRoom';
 import { usePresence } from '../hooks/usePresence';
-import { useVideoSync } from '../hooks/useVideoSync';
-import { useAuth } from '../contexts/AuthContext';
 import { useReactions } from '../hooks/useReactions';
-import { YouTubePlayer } from '../components/video/YouTubePlayer';
-import { HTML5Player } from '../components/video/HTML5Player';
+import { Screen } from '../components/video/Screen';
 import { Sidebar } from '../components/room/Sidebar';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import type { SubtitleCue } from '../utils/subtitles';
+import { roomCodeFrom } from '../utils/links';
+import type { Room as RoomData, RoomMember, User } from '../types';
 
-export const Room: React.FC = () => {
-  const { roomId } = useParams<{ roomId: string }>();
+const emoji = [['😂','Laugh'], ['😭','Cry'], ['🔥','Fire'], ['❤️','Love'], ['👏','Applaud'], ['👀','Eyes'], ['🤯','Mind blown']];
+
+function RoomSession({ room, user }: { room: RoomData; user: User }) {
+  const presence = usePresence(room.roomId, user);
+  const { reactions, sendReaction, error: reactionError } = useReactions(room.roomId, user, presence.joined);
+  const [localUrl, setLocalUrl] = useState('');
+  const [error, setError] = useState('');
+  const [copy, setCopy] = useState<'idle' | 'copied' | 'manual'>('idle');
   const navigate = useNavigate();
-  const { user, login } = useAuth();
-  
-  const { room, loading: roomLoading, error } = useRoom(roomId, user);
-  const { members, updateStatus, toggleReady } = usePresence(roomId, user);
-  const { reactions, sendReaction } = useReactions(roomId, user);
-  
-  const containerRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [localVideoUrl, setLocalVideoUrl] = useState<string | null>(null);
-  // showReactions removed
-  const [displayName, setDisplayName] = useState(localStorage.getItem('syncwatch_displayname') || '');
-  const [, setSubtitles] = useState<SubtitleCue[]>([]);
-
-  // Methods passed from player
-  const playerMethodsRef = useRef<{
-    getCurrentTime: () => number;
-    seekTo: (time: number) => void;
-    setPlaybackRate: (rate: number) => void;
-    play: () => void;
-    pause: () => void;
-  } | null>(null);
-
-  const isHost = user?.uid === room?.hostUid;
-
-  const handleCloseRoom = async () => {
-    if (!roomId || !isHost) return;
-    try {
-      await deleteDoc(doc(db, 'rooms', roomId));
-      navigate('/');
-    } catch (e) {
-      console.error('Failed to close room:', e);
-    }
-  };
-
-  const handleTransferHost = async (newHostUid: string, newHostName: string) => {
-    if (!roomId || !isHost) return;
-    try {
-      await updateDoc(doc(db, 'rooms', roomId), {
-        hostUid: newHostUid,
-        hostName: newHostName,
-      });
-    } catch (e) {
-      console.error('Failed to transfer host:', e);
-    }
-  };
-
-  const isHostRef = useRef(isHost);
+  const host = room.hostUid === user.uid;
+  const invite = window.location.origin + '/room/' + room.roomId;
+  const sourceName = { youtube: 'YouTube', mp4: 'Direct video', local: 'Local file' }[room.videoType];
+  useEffect(() => () => { if (localUrl) URL.revokeObjectURL(localUrl); }, [localUrl]);
   useEffect(() => {
-    isHostRef.current = isHost;
-  }, [isHost]);
-
-  useEffect(() => {
-    const cleanup = () => {
-      // Only delete if we are STILL the host when unmounting or closing the tab
-      if (isHostRef.current && roomId) {
-        deleteDoc(doc(db, 'rooms', roomId)).catch(() => {});
-      }
-    };
-
-    window.addEventListener('beforeunload', cleanup);
-    return () => {
-      window.removeEventListener('beforeunload', cleanup);
-      cleanup();
-    };
-  }, [roomId]);
-
-  const { emitSync } = useVideoSync({
-    isHost,
-    roomId,
-    room,
-    getCurrentTime: () => playerMethodsRef.current?.getCurrentTime() || 0,
-    seekTo: (t) => playerMethodsRef.current?.seekTo(t),
-    setPlaybackRate: (r) => playerMethodsRef.current?.setPlaybackRate(r),
-    play: () => playerMethodsRef.current?.play(),
-    pause: () => playerMethodsRef.current?.pause(),
-    updateStatus,
-  });
-
-  const handleFullscreenToggle = () => {
-    if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen().catch(console.error);
-    } else {
-      document.exitFullscreen();
-    }
-  };
-
-  useEffect(() => {
-    const onFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', onFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
-  }, []);
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger shortcuts if typing in input
-      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) return;
-
-      switch (e.key.toLowerCase()) {
-        case ' ':
-          e.preventDefault();
-          if (isHost) {
-            if (room?.playing) emitSync(false, playerMethodsRef.current?.getCurrentTime() || 0);
-            else emitSync(true, playerMethodsRef.current?.getCurrentTime() || 0);
-          }
-          break;
-        case 'f':
-          handleFullscreenToggle();
-          break;
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isHost, room?.playing, emitSync]);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!displayName.trim()) return;
-    await login(displayName.trim());
-  };
-
-  if (!user) {
-    return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <div className="bg-card p-8 rounded-xl border border-border shadow-lg max-w-md w-full">
-          <h2 className="text-2xl font-bold mb-4">Join Room {roomId}</h2>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <Input 
-              placeholder="Your Display Name" 
-              value={displayName} 
-              onChange={e => setDisplayName(e.target.value)}
-            />
-            <Button type="submit" className="w-full">Join</Button>
-          </form>
-        </div>
-      </div>
-    );
+    if (copy !== 'copied') return;
+    const timer = setTimeout(() => setCopy('idle'), 2500);
+    return () => clearTimeout(timer);
+  }, [copy]);
+  async function copyInvite() {
+    try { await navigator.clipboard.writeText(invite); setCopy('copied'); }
+    catch { setCopy('manual'); }
   }
-
-  if (roomLoading) {
-    return <div className="flex h-[calc(100vh-4rem)] items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div></div>;
+  async function close() {
+    try { await setDoc(doc(db, 'rooms', room.roomId), { closed: true }); navigate('/', { replace: true }); }
+    catch { setError('Could not close the room. Check your connection and try again.'); }
   }
-
-  if (error || !room) {
-    return (
-      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center space-y-4">
-        <h2 className="text-2xl font-bold text-destructive">Oops!</h2>
-        <p className="text-muted-foreground">{error || 'Room not found'}</p>
-        <Button onClick={() => navigate('/')}>Go Home</Button>
-      </div>
-    );
+  async function transfer(member: RoomMember) {
+    try { await updateDoc(doc(db, 'rooms', room.roomId), { hostUid: member.uid, hostName: member.displayName }); setError(''); }
+    catch { setError('Could not transfer the room. Check that the guest is still here.'); }
   }
-
-  const Player = room.videoType === 'youtube' ? YouTubePlayer : HTML5Player;
-
-  const handlePlay = () => {
-    updateStatus('watching');
-    if (isHost) emitSync(true, playerMethodsRef.current?.getCurrentTime() || 0);
-  };
-
-  const handlePause = () => {
-    if (isHost) emitSync(false, playerMethodsRef.current?.getCurrentTime() || 0);
-  };
-
-  const handleTimeUpdate = () => {
-    // We handle host sync emitting in useVideoSync interval
-  };
-
-  const readyCount = members.filter(m => m.isReady).length;
-  const allReady = members.length > 0 && readyCount === members.length;
-
-  return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-background">
-      {/* Main Video Area */}
-      <div ref={containerRef} className="flex-1 relative flex flex-col bg-black">
-        <div className="flex-1 relative group">
-          
-          {/* Overlay to block non-host interaction if needed, but we let YT API handle it mostly. 
-              Actually, for perfect sync, non-hosts shouldn't seek. 
-              A transparent overlay can block clicks for non-hosts. */}
-          {room.videoType === 'local' && !localVideoUrl ? (
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-card/90 text-center p-8 space-y-6">
-              <h3 className="text-2xl font-bold text-foreground">Local File Sync</h3>
-              <p className="text-muted-foreground max-w-md">
-                This room uses local file synchronization to guarantee perfect playback without server buffering. 
-                <br /><br />
-                <strong>Step 1:</strong> Download the video file from the host's link below:
-              </p>
-              <a 
-                href={room.videoUrl} 
-                target="_blank" 
-                rel="noreferrer"
-                className="text-primary font-medium hover:underline break-all max-w-lg"
-              >
-                {room.videoUrl}
-              </a>
-              <p className="text-muted-foreground mt-4">
-                <strong>Step 2:</strong> Select the downloaded file from your computer:
-              </p>
-              <input 
-                type="file" 
-                accept="video/*" 
-                className="hidden" 
-                ref={fileInputRef}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setLocalVideoUrl(URL.createObjectURL(file));
-                  }
-                }}
-              />
-              <Button onClick={() => fileInputRef.current?.click()} size="lg" className="shadow-[0_0_20px_rgba(var(--primary),0.4)]">
-                Select Downloaded Video
-              </Button>
-            </div>
-          ) : (
-            <>
-              {!isHost && (
-                <div className="absolute inset-0 z-10 pointer-events-auto cursor-not-allowed opacity-0" title="Only the host can control playback" />
-              )}
-    
-              <Player
-                url={localVideoUrl || room.videoUrl}
-                playing={room.playing}
-            playbackRate={room.playbackRate}
-            registerMethods={(methods) => {
-              playerMethodsRef.current = methods;
-            }}
-            onPlay={handlePlay}
-            onPause={handlePause}
-            onTimeUpdate={handleTimeUpdate}
-            onSeeked={(time) => {
-              if (isHost) emitSync(room.playing, time);
-            }}
-                onBuffering={(b) => updateStatus(b ? 'buffering' : 'watching')}
-              />
-            </>
-          )}
-
-          {/* Controls Overlay (Hover) */}
-          <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="secondary" size="sm" onClick={handleFullscreenToggle} className="bg-black/50 text-white border-none hover:bg-black/70">
-              {isFullscreen ? <MdFullscreenExit size={24} /> : <MdFullscreen size={24} />}
-            </Button>
-          </div>
-
-          {/* Reactions Overlay */}
-          <div className="absolute bottom-20 left-10 z-20 pointer-events-none flex items-end">
-            <AnimatePresence>
-              {reactions.map((reaction) => (
-                <motion.div
-                  key={reaction.id}
-                  initial={{ opacity: 0, y: 50, scale: 0.5 }}
-                  animate={{ opacity: 1, y: -Math.random() * 200 - 50, scale: 1.5, x: (Math.random() - 0.5) * 100 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 2, ease: "easeOut" }}
-                  className="absolute text-4xl"
-                >
-                  {reaction.emoji}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-
-          {/* Start Movie Button for Host */}
-          {isHost && !room.playing && allReady && (
-            <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-              >
-                <Button 
-                  size="lg" 
-                  className="text-xl px-12 py-6 rounded-full shadow-[0_0_40px_rgba(var(--primary),0.6)] animate-pulse"
-                  onClick={() => {
-                    emitSync(true, playerMethodsRef.current?.getCurrentTime() || 0);
-                    playerMethodsRef.current?.play();
-                  }}
-                >
-                  {room.currentTime > 1 ? 'Resume Movie' : 'Start Movie'}
-                </Button>
-              </motion.div>
-            </div>
-          )}
-        </div>
-
-        {/* Reaction Bar */}
-        <div className="h-16 bg-card border-t border-border flex items-center px-4 gap-2 relative z-20">
-          {['😂', '😭', '🔥', '❤️', '👏', '👀', '🤯'].map((emoji) => (
-            <motion.button
-              key={emoji}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => sendReaction(emoji)}
-              className="w-10 h-10 text-2xl flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
-            >
-              {emoji}
-            </motion.button>
-          ))}
-          
-          <div className="flex-1" />
-          
-          {isHost && (
-            <div className="text-xs text-muted-foreground bg-secondary px-3 py-1.5 rounded-md">
-              You are the Host. Space = Play/Pause
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Sidebar */}
-      {!isFullscreen && (
-        <Sidebar 
-          room={room} 
-          members={members} 
-          user={user} 
-          isHost={isHost}
-          onToggleReady={toggleReady} 
-          onSubtitlesLoaded={setSubtitles} 
-          onCloseRoom={handleCloseRoom}
-          onTransferHost={handleTransferHost}
-        />
-      )}
+  const fileInput = <label className="btn secondary file-control"><MdFolderOpen />{localUrl ? 'Change file' : 'Choose video file'}
+    <input className="visually-hidden" type="file" accept="video/*" onChange={e => {
+      const file = e.target.files?.[0];
+      if (file) setLocalUrl(URL.createObjectURL(file));
+      e.target.value = '';
+    }} /></label>;
+  return <div className="shell watch-room">
+    <header className="room-heading">
+      <div><h1>Room <span>{room.roomId}</span></h1><p>{sourceName} · Hosted by {host ? 'you' : room.hostName}</p></div>
+      <button className="btn secondary" onClick={copyInvite}><MdContentCopy /><span aria-live="polite">{copy === 'copied' ? 'Link copied' : 'Copy invite'}</span></button>
+    </header>
+    {copy === 'manual' && <label className="manual-invite">Copy this invite link<input value={invite} readOnly onFocus={e => e.target.select()} /></label>}
+    {(error || presence.error || reactionError) && <p role="alert" className="error">{error || presence.error || reactionError}</p>}
+    <div className="room-grid">
+      <section className="watch-column" aria-label="Screening">
+        {room.videoType === 'local' && !localUrl ? <div className="local-prompt">
+          <MdFolderOpen /><h2>Choose your copy</h2>
+          <p>Each person needs the same video file. Open the host’s download link, then select your copy here.</p>
+          {/^https?:\/\//i.test(room.videoUrl) && <a className="text-button" href={room.videoUrl} target="_blank" rel="noreferrer">Open download link</a>}{fileInput}
+        </div> : <Screen key={String(host) + localUrl} host={host} room={room} url={localUrl || room.videoUrl} reactions={reactions} onBuffer={b => presence.updateStatus(b ? 'buffering' : 'watching')} />}
+        {room.videoType === 'local' && localUrl && <div className="file-info">{fileInput}</div>}
+        <div className="reaction-bar" role="group" aria-label="Send a reaction"><span>React</span>
+          {emoji.map(([symbol, name]) => <button key={name} aria-label={name} title={name} disabled={!presence.joined} onClick={() => sendReaction(symbol)}>{symbol}</button>)}</div>
+      </section>
+      <Sidebar room={room} user={user} members={presence.members} joined={presence.joined} toggleReady={presence.toggleReady} transfer={transfer} close={close} />
     </div>
-  );
-};
+  </div>;
+}
+
+function ConnectedRoom({ id, user }: { id: string; user: User }) {
+  const { room, error } = useRoom(id);
+  if (error) return <RoomError detail={error} />;
+  if (!room) return <p className="loading-state" role="status">Opening room…</p>;
+  return <RoomSession room={room} user={user} />;
+}
+function RoomError({ detail }: { detail: string }) {
+  return <section className="setup-wrap panel form-panel"><h1>Room unavailable</h1><p>{detail}</p>
+    <Link className="btn secondary" to="/">Return to lobby</Link></section>;
+}
+export function Room() {
+  const { roomId = '' } = useParams();
+  const id = roomCodeFrom(roomId);
+  const { user, loading, login } = useAuth();
+  const [name, setName] = useState(rememberedName);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  async function join(event: FormEvent) {
+    event.preventDefault();
+    if (!name.trim()) { setError('Enter your display name.'); return; }
+    setBusy(true); setError('');
+    try { await login(name); } catch { setError('Could not join. Check your connection and try again.'); }
+    finally { setBusy(false); }
+  }
+  if (!id) return <RoomError detail="Check the six-character code in your invite." />;
+  if (loading) return <p className="loading-state" role="status">Restoring session…</p>;
+  if (user) return <ConnectedRoom key={id + user.uid} id={id} user={user} />;
+  return <section className="setup-wrap panel form-panel"><span className="card-icon"><MdMeetingRoom /></span>
+    <h1>Join room {id}</h1><p>Choose the name your friends will see.</p>
+    <form onSubmit={join} className="stack"><label>Your display name<input value={name} required maxLength={40} autoComplete="nickname" placeholder="Name in the room" onChange={e => setName(e.target.value)} /></label>
+      {error && <p className="error" role="alert">{error}</p>}
+      <button className="btn primary" disabled={busy}>{busy ? 'Joining…' : 'Join room'}</button>
+    </form></section>;
+}

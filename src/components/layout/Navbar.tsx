@@ -1,37 +1,21 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { MdMovieFilter } from 'react-icons/md';
-import { useAuth } from '../../contexts/AuthContext';
-import { Button } from '../ui/Button';
-import { Avatar } from '../ui/Avatar';
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { MdLocalMovies, MdLogout, MdMeetingRoom } from 'react-icons/md';
+import { useAuth } from '../../contexts/session';
 
-export const Navbar: React.FC = () => {
+export function Navbar() {
   const { user, logout } = useAuth();
-
-  return (
-    <nav className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2 text-primary hover:text-primary/80 transition-colors">
-          <MdMovieFilter className="w-8 h-8" />
-          <span className="font-bold text-xl tracking-tight text-foreground">SyncWatch</span>
-        </Link>
-        
-        <div className="flex items-center space-x-4">
-          {user ? (
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 bg-secondary px-3 py-1.5 rounded-full border border-border">
-                <Avatar name={user.displayName} size="sm" />
-                <span className="text-sm font-medium">{user.displayName}</span>
-              </div>
-              <Button variant="ghost" size="sm" onClick={logout}>
-                Logout
-              </Button>
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground">Not logged in</div>
-          )}
-        </div>
+  const { pathname } = useLocation();
+  const [error, setError] = useState('');
+  return <header className="masthead">
+    <nav className="shell nav-inner" aria-label="Main navigation">
+      <Link to="/" className="wordmark"><span className="brand-icon"><MdLocalMovies /></span>WatchParty</Link>
+      <div className="nav-right">
+        {user && <span className="identity"><b aria-hidden="true">{Array.from(user.displayName)[0]}</b><span>{user.displayName}</span></span>}
+        {pathname !== '/' ? <Link to="/" className="nav-link"><MdMeetingRoom /> Lobby</Link> :
+          user && <button className="nav-link" onClick={() => { setError(''); logout().catch(() => setError('Sign-out failed. Try again.')); }}><MdLogout /> Sign out</button>}
       </div>
     </nav>
-  );
-};
+    {error && <p className="shell error" role="alert">{error}</p>}
+  </header>;
+}

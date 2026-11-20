@@ -1,70 +1,54 @@
 import { useEffect, useState } from 'react';
-import { collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, runTransaction, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import type { User, RoomMember } from '../types';
 
-export const usePresence = (roomId: string | undefined, user: User | null) => {
-  const [members, setMembers] = useState<RoomMember[]>([]);
+const heartbeatMs = 25_000;
 
+export function usePresence(roomId: string, user: User) {
+  const [rows, setRows] = useState<RoomMember[]>([]);
+  const [now, setNow] = useState(Date.now);
+  const [joined, setJoined] = useState(false);
+  const [error, setError] = useState('');
   useEffect(() => {
-    if (!roomId || !user) return;
-
-    const membersRef = collection(db, `rooms/${roomId}/members`);
-    const userDocRef = doc(membersRef, user.uid);
-
-    // Join room
-    const joinRoom = async () => {
-      await setDoc(userDocRef, {
-        uid: user.uid,
-        displayName: user.displayName,
-        isReady: false,
-        status: 'watching',
-        joinedAt: Date.now(),
-        lastActive: Date.now(),
+    const members = collection(db, 'rooms', roomId, 'members');
+    const own = doc(members, user.uid);
+    let active = true;
+    async function enter() {
+      await runTransaction(db, async tx => {
+        const previous = (await tx.get(own)).data();
+        if (!active) return;
+        const time = Date.now();
+        tx.set(own, { uid: user.uid, displayName: user.displayName, status: 'watching',
+          isReady: previous?.isReady === true && time - previous.lastActive < heartbeatMs * 3,
+          joinedAt: previous?.joinedAt || time, lastActive: time });
       });
-    };
-
-    joinRoom();
-
-    // Listen to members
-    const unsubscribe = onSnapshot(membersRef, (snapshot) => {
-      const currentMembers: RoomMember[] = [];
-      snapshot.forEach((doc) => {
-        currentMembers.push(doc.data() as RoomMember);
-      });
-      setMembers(currentMembers);
-    });
-
-    // Cleanup on unmount (leave room)
-    return () => {
-      unsubscribe();
-      deleteDoc(userDocRef).catch(console.error);
-    };
-  }, [roomId, user]);
-
-  const updateStatus = async (status: 'watching' | 'buffering' | 'offline') => {
-    if (!roomId || !user) return;
-    try {
-      await updateDoc(doc(db, `rooms/${roomId}/members/${user.uid}`), {
-        status,
-        lastActive: Date.now(),
-      });
-    } catch (e) {
-      console.error('Failed to update status', e);
+      if (active) { setJoined(true); setError(''); }
     }
-  };
+    function report() { if (active) setError('Could not update room presence. Reconnecting…'); }
+    enter().catch(report);
+    const unsubscribe = onSnapshot(members, snap => {
+      setNow(Date.now());
+      setRows(snap.docs.map(d => d.data() as RoomMember));
+    }, report);
+    // Let the heartbeat expire on exit so closing one tab cannot evict another.
+    const beat = () => {
+      setNow(Date.now());
+      updateDoc(own, { lastActive: Date.now() }).then(() => {
+        if (active) { setJoined(true); setError(''); }
+      }).catch(() => { if (active) enter().catch(report); });
+    };
+    const timer = window.setInterval(beat, heartbeatMs);
+    window.addEventListener('online', beat);
+    return () => { active = false; unsubscribe(); clearInterval(timer); window.removeEventListener('online', beat); };
+  }, [roomId, user.uid, user.displayName]);
 
-  const toggleReady = async (currentReadyState: boolean) => {
-    if (!roomId || !user) return;
-    try {
-      await updateDoc(doc(db, `rooms/${roomId}/members/${user.uid}`), {
-        isReady: !currentReadyState,
-        lastActive: Date.now(),
-      });
-    } catch (e) {
-      console.error('Failed to toggle ready state', e);
-    }
+  const update = async (value: Partial<RoomMember>) => {
+    if (!joined) return;
+    try { await updateDoc(doc(db, 'rooms', roomId, 'members', user.uid), { ...value, lastActive: Date.now() }); setError(''); }
+    catch { setError('Could not update your status. Try again.'); }
   };
-
-  return { members, updateStatus, toggleReady };
-};
+  return { joined, error, members: rows.filter(m => now - m.lastActive < heartbeatMs * 3),
+    toggleReady: (ready: boolean) => update({ isReady: !ready }),
+    updateStatus: (status: RoomMember['status']) => update({ status }) };
+}

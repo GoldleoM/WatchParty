@@ -1,40 +1,58 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Only authenticated users can access the database
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-    
-    // Rooms collection
     match /rooms/{roomId} {
-      // Anyone authenticated can create a room, read a room
-      allow create: if request.auth != null;
-      allow read: if request.auth != null;
-      
-      // Only the host can update room details (video, playback) or delete it
-      allow update: if request.auth != null 
-                    && resource.data.hostUid == request.auth.uid;
-      allow delete: if request.auth != null 
-                    && resource.data.hostUid == request.auth.uid;
-                    
-      // Members subcollection
-      match /members/{memberId} {
-        // Members can join, update their own presence/ready status, and leave
-        allow read: if request.auth != null;
-        allow create, update, delete: if request.auth != null && memberId == request.auth.uid;
+      function signedIn() { return request.auth != null; }
+      function active() {
+        return exists(/databases/$(database)/documents/rooms/$(roomId))
+          && !get(/databases/$(database)/documents/rooms/$(roomId)).data.get('closed', false);
       }
-      
-      // Messages subcollection
-      match /messages/{messageId} {
-        allow read: if request.auth != null;
-        allow create: if request.auth != null;
+      function member() {
+        return signedIn() && active()
+          && exists(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.auth.uid));
       }
-      
-      // Reactions subcollection
-      match /reactions/{reactionId} {
-        allow read: if request.auth != null;
-        allow create: if request.auth != null;
+      function nameValid(name) { return name is string && name.size() > 0 && name.size() <= 80; }
+      function validPlayback(d) {
+        return d.playing is bool && d.currentTime is number && d.currentTime >= 0
+          && d.playbackRate is number && d.playbackRate > 0 && d.playbackRate <= 16
+          && d.lastUpdate is number;
+      }
+      allow get: if signedIn();
+      allow create: if signedIn() && roomId.matches('[A-Z0-9]{6}') && request.resource.data.roomId == roomId
+        && request.resource.data.hostUid == request.auth.uid && nameValid(request.resource.data.hostName)
+        && request.resource.data.videoType in ['youtube', 'mp4', 'local']
+        && request.resource.data.videoUrl is string && request.resource.data.videoUrl.matches('https://.+')
+        && request.resource.data.createdAt is number && validPlayback(request.resource.data)
+        && request.resource.data.keys().hasOnly(['roomId','hostUid','hostName','createdAt','videoType','videoUrl','playing','currentTime','playbackRate','lastUpdate']);
+      allow update: if signedIn() && !resource.data.get('closed', false) && resource.data.hostUid == request.auth.uid
+        && (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['playing','currentTime','playbackRate','lastUpdate'])
+            && validPlayback(request.resource.data)
+          || request.resource.data.keys().hasOnly(['closed']) && request.resource.data.closed == true
+          || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hostUid','hostName'])
+            && exists(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.resource.data.hostUid))
+            && request.resource.data.hostName == get(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.resource.data.hostUid)).data.displayName);
+      match /members/{uid} {
+        allow read: if signedIn() && active();
+        allow create, update: if signedIn() && uid == request.auth.uid && active()
+          && request.resource.data.uid == uid && nameValid(request.resource.data.displayName)
+          && request.resource.data.isReady is bool && request.resource.data.status in ['watching','buffering','offline']
+          && request.resource.data.joinedAt is number && request.resource.data.lastActive is number
+          && request.resource.data.keys().hasOnly(['uid','displayName','isReady','status','joinedAt','lastActive']);
+        allow delete: if signedIn() && uid == request.auth.uid;
+      }
+      match /messages/{id} {
+        allow read: if member();
+        allow create: if member() && request.resource.data.uid == request.auth.uid
+          && nameValid(request.resource.data.displayName) && request.resource.data.timestamp is number
+          && request.resource.data.text is string && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 2000
+          && request.resource.data.keys().hasOnly(['uid','displayName','text','timestamp']);
+      }
+      match /reactions/{id} {
+        allow read: if member();
+        allow create: if member() && request.resource.data.uid == request.auth.uid
+          && request.resource.data.timestamp is number && request.resource.data.emoji in ['😂','😭','🔥','❤️','👏','👀','🤯']
+          && request.resource.data.keys().hasOnly(['uid','emoji','timestamp']);
       }
     }
   }
