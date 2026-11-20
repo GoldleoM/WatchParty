@@ -2,6 +2,7 @@ export interface MediaControls {
   time: () => number;
   duration: () => number;
   playing: () => boolean;
+  buffering?: () => boolean;
   rate: () => number;
   setRate: (rate: number) => void;
   seek: (time: number) => void;

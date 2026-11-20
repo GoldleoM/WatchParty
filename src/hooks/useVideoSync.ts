@@ -34,6 +34,13 @@ export function useVideoSync(room: Room, host: boolean, media: MediaControls | n
     if (!media) return;
     if (!host || initialized.current !== media) followRoom(media, room);
     initialized.current = media;
+    if (!host && room.videoType === 'youtube') {
+      // The native quality menu also exposes timeline controls, including seeking while paused.
+      const timer = window.setInterval(() => {
+        if (!room.playing || !media.buffering?.()) followRoom(media, room);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
   }, [media, room, host]);
   useEffect(() => {
     if (!media || !host) return;

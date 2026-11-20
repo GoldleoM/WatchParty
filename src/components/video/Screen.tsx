@@ -92,12 +92,13 @@ export function Screen({ room, host, url, onBuffer, reactions, onEnded }: Props)
           {room.playing ? <MdPause /> : <MdPlayArrow />}{room.playing ? 'Pause' : 'Play'}</button> :
           <span className="play-status">{room.playing ? 'Playing in sync' : 'Paused by host'}</span>}
         <div className="play-tools">
-          {!host && <button aria-label={muted ? 'Unmute video' : 'Mute video'} disabled={!media} onClick={() => { media?.mute(!muted); setMuted(!muted); }}>{muted ? <MdVolumeOff /> : <MdVolumeUp />}</button>}
+          {!host && room.videoType !== 'youtube' && <button aria-label={muted ? 'Unmute video' : 'Mute video'} disabled={!media} onClick={() => { media?.mute(!muted); setMuted(!muted); }}>{muted ? <MdVolumeOff /> : <MdVolumeUp />}</button>}
           <label className="file-control" title="Load subtitles"><input type="file" accept=".srt,.vtt" className="visually-hidden" aria-label="Load subtitles" onChange={captions} /><MdClosedCaption /></label>
           {document.fullscreenEnabled && <button aria-label="Toggle fullscreen" onClick={fullscreen}><MdFullscreen /></button>}
         </div>
       </div>
     </div>
+    {room.videoType === 'youtube' && !failure && <p className="quality-hint">Choose your video quality in the YouTube player under Settings → Quality.</p>}
     {captionName && <div className="file-info"><span>Subtitles · {captionName}</span><button className="text-button" onClick={() => { setCues([]); setCaptionName(''); }}>Remove</button></div>}
     {(notice || error) && <p className="error" role="alert">{notice || error}</p>}
   </>;

@@ -127,7 +127,7 @@ legend { margin-bottom: .45rem; padding: 0; }
 .screen-wrap, .local-prompt { overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #080809; }
 .screen { position: relative; aspect-ratio: 16/9; min-height: 200px; }
 .screen video, .screen iframe, .youtube { width: 100%; height: 100%; display: block; border: 0; }
-.guest-player { pointer-events: none; }
+.quality-hint { margin: .45rem 0 0; color: var(--soft); font-size: .875rem; }
 .screen-wrap:fullscreen { display: flex; flex-direction: column; border: 0; border-radius: 0; }
 .screen-wrap:fullscreen .screen { min-height: 0; flex: 1; }
 .screen-prompt { position: absolute; inset: 0; padding: 1rem; display: grid; align-content: center; justify-items: center; gap: .75rem; background: #161316ef; text-align: center; }

@@ -71,17 +71,17 @@ export function YouTubePlayer(props: PlayerProps) {
       container.current.replaceChildren(mount);
       player = new api.Player(mount, {
         videoId: id,
-        playerVars: { origin: window.location.origin, controls: host ? 1 : 0, disablekb: host ? 0 : 1, playsinline: 1, rel: 0 },
+        playerVars: { origin: window.location.origin, controls: 1, disablekb: host ? 0 : 1, playsinline: 1, rel: 0 },
         events: {
           onReady() {
             clearTimeout(timeout);
             const p = player;
             if (!active || !p) return;
             p.getIframe().title = 'YouTube room video';
-            if (!host) p.getIframe().tabIndex = -1;
             latest.current.onReady({
               time: () => p.getCurrentTime(), duration: () => p.getDuration(),
               playing: () => [1, 3].includes(p.getPlayerState()), rate: () => p.getPlaybackRate(),
+              buffering: () => p.getPlayerState() === 3,
               setRate: rate => p.setPlaybackRate(rate), seek: time => p.seekTo(time, true),
               play: () => p.playVideo(), pause: () => p.pauseVideo(), mute: muted => muted ? p.mute() : p.unMute(),
             });
@@ -100,5 +100,5 @@ export function YouTubePlayer(props: PlayerProps) {
     }).catch(failure);
     return () => { active = false; clearTimeout(timeout); player?.destroy(); };
   }, [url, host]);
-  return <div className={'youtube' + (host ? '' : ' guest-player')} ref={container} />;
+  return <div className="youtube" ref={container} />;
 }

@@ -1,6 +1,57 @@
 import { expect, test } from '@playwright/test';
 import { register } from './email';
 
+test('both viewers can use native YouTube controls while the guest follows the host timeline', async ({ page: host, browser }) => {
+  const guest = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  try {
+    for (const viewer of [host, guest]) {
+      await viewer.route('https://www.youtube.com/iframe_api', route => route.fulfill({
+        contentType: 'text/javascript',
+        body: `
+          window.YT = { Player: class {
+            constructor(node, options) {
+              this.frame = document.createElement('iframe');
+              node.replaceWith(this.frame);
+              this.frame.onload = () => {
+                const doc = this.frame.contentDocument;
+                doc.querySelector('button').onclick = () => { this.time = 57; };
+                options.events.onReady();
+              };
+              this.time = 0;
+              this.frame.srcdoc = options.playerVars.controls === 1
+                ? '<select aria-label="Quality"><option>Auto</option><option>720p</option></select><button>Seek</button>'
+                : '<button hidden>Seek</button>';
+            }
+            getIframe() { return this.frame; }
+            getCurrentTime() { return this.time; }
+            getDuration() { return 120; }
+            getPlayerState() { return 2; }
+            getPlaybackRate() { return 1; }
+            seekTo(time) { this.time = time; this.frame.dataset.time = time; }
+            destroy() { this.frame.remove(); }
+          }};
+          window.onYouTubeIframeAPIReady();`,
+      }));
+    }
+    await host.goto('/create');
+    await register(host, 'Host');
+    await host.getByLabel('YouTube video link').fill('https://youtu.be/M7lc1UVf-VE');
+    await host.getByRole('button', { name: 'Create room' }).click();
+    await expect(host.locator('.youtube iframe')).toHaveAttribute('title', 'YouTube room video');
+    await guest.goto(host.url());
+    await register(guest, 'Guest');
+    const guestFrame = guest.frameLocator('.youtube iframe');
+    const quality = guestFrame.getByRole('combobox', { name: 'Quality' });
+    await quality.click();
+    await quality.selectOption('720p');
+    await expect(host.frameLocator('.youtube iframe').getByRole('combobox')).toHaveValue('Auto');
+    await guestFrame.getByRole('button', { name: 'Seek' }).click();
+    await expect(guest.locator('.youtube iframe')).toHaveAttribute('data-time', '0');
+    await expect(quality).toHaveValue('720p');
+    await expect(guest.getByText('Paused by host')).toBeVisible();
+  } finally { await guest.close(); }
+});
+
 test('members discover and queue YouTube videos while the host shares and selects Shorts', async ({ page: host, browser }) => {
   test.setTimeout(60000);
   const guest = await browser.newPage();
