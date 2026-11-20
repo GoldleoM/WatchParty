@@ -2,13 +2,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /rooms/{roomId} {
-      function signedIn() { return request.auth != null; }
+      function verified() { return request.auth != null && request.auth.token.get('email_verified', false) == true; }
       function active() {
         return exists(/databases/$(database)/documents/rooms/$(roomId))
           && !get(/databases/$(database)/documents/rooms/$(roomId)).data.get('closed', false);
       }
       function member() {
-        return signedIn() && active()
+        return verified() && active()
           && exists(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.auth.uid));
       }
       function nameValid(name) { return name is string && name.size() > 0 && name.size() <= 80; }
@@ -17,14 +17,29 @@ service cloud.firestore {
           && d.playbackRate is number && d.playbackRate > 0 && d.playbackRate <= 16
           && d.lastUpdate is number;
       }
-      allow get: if signedIn();
-      allow create: if signedIn() && roomId.matches('[A-Z0-9]{6}') && request.resource.data.roomId == roomId
+      function liveMember(uid) {
+        let path = /databases/$(database)/documents/rooms/$(roomId)/members/$(uid);
+        return exists(path) && get(path).data.status != 'offline'
+          && ('lastSeen' in get(path).data ? get(path).data.lastSeen > request.time - duration.value(90, 's') : get(path).data.lastActive > request.time.toMillis() - 90000);
+      }
+      function hostAbsent() {
+        let uid = resource.data.hostUid;
+        return !liveMember(uid) && (exists(/databases/$(database)/documents/rooms/$(roomId)/members/$(uid))
+          || resource.data.createdAt < request.time.toMillis() - 90000);
+      }
+      allow update: if verified() && !resource.data.get('closed', false)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hostUid','hostName'])
+        && request.resource.data.hostUid == request.auth.uid && liveMember(request.auth.uid)
+        && request.resource.data.hostName == get(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.auth.uid)).data.displayName
+        && hostAbsent();
+      allow get: if verified();
+      allow create: if verified() && roomId.matches('[A-Z0-9]{6}') && request.resource.data.roomId == roomId
         && request.resource.data.hostUid == request.auth.uid && nameValid(request.resource.data.hostName)
         && request.resource.data.videoType in ['youtube', 'mp4', 'local']
         && request.resource.data.videoUrl is string && request.resource.data.videoUrl.matches('https://.+')
         && request.resource.data.createdAt is number && validPlayback(request.resource.data)
         && request.resource.data.keys().hasOnly(['roomId','hostUid','hostName','createdAt','videoType','videoUrl','playing','currentTime','playbackRate','lastUpdate']);
-      allow update: if signedIn() && !resource.data.get('closed', false) && resource.data.hostUid == request.auth.uid
+      allow update: if verified() && !resource.data.get('closed', false) && resource.data.hostUid == request.auth.uid
         && (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['playing','currentTime','playbackRate','lastUpdate'])
             && validPlayback(request.resource.data)
           || request.resource.data.keys().hasOnly(['closed']) && request.resource.data.closed == true
@@ -32,13 +47,14 @@ service cloud.firestore {
             && exists(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.resource.data.hostUid))
             && request.resource.data.hostName == get(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.resource.data.hostUid)).data.displayName);
       match /members/{uid} {
-        allow read: if signedIn() && active();
-        allow create, update: if signedIn() && uid == request.auth.uid && active()
+        allow read: if verified() && active();
+        allow create, update: if verified() && uid == request.auth.uid && active()
           && request.resource.data.uid == uid && nameValid(request.resource.data.displayName)
           && request.resource.data.isReady is bool && request.resource.data.status in ['watching','buffering','offline']
           && request.resource.data.joinedAt is number && request.resource.data.lastActive is number
-          && request.resource.data.keys().hasOnly(['uid','displayName','isReady','status','joinedAt','lastActive']);
-        allow delete: if signedIn() && uid == request.auth.uid;
+          && request.resource.data.keys().hasOnly(['uid','displayName','isReady','status','joinedAt','lastActive','enteredAt','lastSeen','connections'])
+          && request.resource.data.lastSeen == request.time;
+        allow delete: if verified() && uid == request.auth.uid;
       }
       match /messages/{id} {
         allow read: if member();

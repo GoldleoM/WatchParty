@@ -1,3 +1,4 @@
+import { register } from './email';
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -23,7 +24,7 @@ test('host and guest share playback, presence, captions, chat and room ownership
   try {
     await host.goto('/');
     await host.getByRole('link', { name: 'Create room' }).click();
-    await host.getByLabel('Your display name').fill('Host');
+    await register(host, 'Host');
     await host.getByRole('radio', { name: 'Video link' }).check();
     await host.getByLabel('Direct video link').fill('https://media.example.test/screen.webm');
     await host.getByRole('button', { name: 'Create room' }).click();
@@ -32,8 +33,7 @@ test('host and guest share playback, presence, captions, chat and room ownership
     await guest.goto('/');
     await guest.getByLabel('Room code or invite link').fill(invite.toLowerCase() + '?from=friend');
     await guest.getByRole('button', { name: 'Join room' }).click();
-    await guest.getByLabel('Your display name').fill('Guest');
-    await guest.getByRole('button', { name: 'Join room' }).click();
+    await register(guest, 'Guest');
     await expect(host.getByText('Guest', { exact: true })).toBeVisible();
     await guest.getByRole('button', { name: 'Mark ready' }).click();
     await expect(host.getByText('Ready', { exact: true })).toBeVisible();
@@ -77,7 +77,7 @@ test('validates invites, source links and loads a local video', async ({ page })
   await page.getByRole('button', { name: 'Join room' }).click();
   await expect(page.getByRole('alert')).toContainText('six-character');
   await page.getByRole('link', { name: 'Create room' }).click();
-  await page.getByLabel('Your display name').fill('Local host');
+  await register(page, 'Local host');
   await page.getByLabel('YouTube video link').fill('https://www.youtube.com/');
   await page.getByRole('button', { name: 'Create room' }).click();
   await expect(page.getByRole('alert')).toContainText('specific YouTube video');

@@ -1,7 +1,8 @@
+import { verificationCode } from './email';
 import { expect, test } from '@playwright/test';
 import { deleteApp, initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth, signInAnonymously } from 'firebase/auth';
-import { connectFirestoreEmulator, doc, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore/lite';
+import { connectAuthEmulator, getAuth, createUserWithEmailAndPassword, sendEmailVerification, applyActionCode } from 'firebase/auth';
+import { connectFirestoreEmulator, doc, getDoc, getFirestore, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore/lite';
 import { randomBytes } from 'node:crypto';
 
 async function participant(name: string) {
@@ -10,7 +11,13 @@ async function participant(name: string) {
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
   const db = getFirestore(app);
   connectFirestoreEmulator(db, '127.0.0.1', 8080);
-  const { user } = await signInAnonymously(auth);
+  const email = randomBytes(8).toString('hex') + '@example.test';
+  const { user } = await createUserWithEmailAndPassword(auth, email, 'Example-test-42');
+  await expect(getDoc(doc(db, 'rooms', 'ABC123'))).rejects.toMatchObject({ code: 'permission-denied' });
+  await sendEmailVerification(user);
+  await applyActionCode(auth, await verificationCode(email));
+  await user.reload();
+  await user.getIdToken(true);
   return { app, db, uid: user.uid };
 }
 
@@ -24,8 +31,10 @@ test('room permissions protect the host timeline, member identity and closed cha
     await setDoc(room, { roomId: id, hostUid: host.uid, hostName: 'Host', createdAt: now,
       videoType: 'local', videoUrl: 'https://example.test/file', playing: false,
       currentTime: 0, playbackRate: 1, lastUpdate: now });
-    const member = { uid: guest.uid, displayName: 'Guest', joinedAt: now, lastActive: now, isReady: true, status: 'watching' };
+    const member = { uid: guest.uid, displayName: 'Guest', joinedAt: now, lastActive: now, isReady: true, status: 'watching', lastSeen: serverTimestamp() };
     await setDoc(doc(guest.db, 'rooms', id, 'members', guest.uid), member);
+    await setDoc(doc(host.db, 'rooms', id, 'members', host.uid), { ...member, uid: host.uid, displayName: 'Host' });
+    await expect(updateDoc(doc(guest.db, 'rooms', id), { hostUid: guest.uid, hostName: 'Guest' })).rejects.toMatchObject({ code: 'permission-denied' });
     await expect(updateDoc(doc(guest.db, 'rooms', id), { playing: true })).rejects.toMatchObject({ code: 'permission-denied' });
     await expect(setDoc(doc(guest.db, 'rooms', id, 'members', host.uid), member)).rejects.toMatchObject({ code: 'permission-denied' });
     const message = doc(guest.db, 'rooms', id, 'messages', 'hello');

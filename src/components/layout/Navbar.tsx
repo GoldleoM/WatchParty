@@ -12,8 +12,9 @@ export function Navbar() {
       <Link to="/" className="wordmark"><span className="brand-icon"><MdLocalMovies /></span>WatchParty</Link>
       <div className="nav-right">
         {user && <span className="identity"><b aria-hidden="true">{Array.from(user.displayName)[0]}</b><span>{user.displayName}</span></span>}
-        {pathname !== '/' ? <Link to="/" className="nav-link"><MdMeetingRoom /> Lobby</Link> :
-          user && <button className="nav-link" onClick={() => { setError(''); logout().catch(() => setError('Sign-out failed. Try again.')); }}><MdLogout /> Sign out</button>}
+        {pathname !== '/' ? <Link to="/" className="nav-link"><MdMeetingRoom /> Lobby</Link> : null}
+        {
+           user ? <button className="nav-link" onClick={() => { setError(''); logout().catch(() => setError('Sign-out failed. Try again.')); }}><MdLogout /> Sign out</button> : pathname === '/' && <Link to="/account" className="nav-link">Sign in</Link>}
       </div>
     </nav>
     {error && <p className="shell error" role="alert">{error}</p>}

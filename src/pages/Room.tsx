@@ -1,9 +1,9 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { doc, setDoc, updateDoc } from 'firebase/firestore';
-import { MdContentCopy, MdFolderOpen, MdMeetingRoom } from 'react-icons/md';
+import { MdContentCopy, MdFolderOpen } from 'react-icons/md';
 import { db } from '../firebase/config';
-import { rememberedName, useAuth } from '../contexts/session';
+import { useAuth } from '../contexts/session';
 import { useRoom } from '../hooks/useRoom';
 import { usePresence } from '../hooks/usePresence';
 import { useReactions } from '../hooks/useReactions';
@@ -15,7 +15,7 @@ import type { Room as RoomData, RoomMember, User } from '../types';
 const emoji = [['😂','Laugh'], ['😭','Cry'], ['🔥','Fire'], ['❤️','Love'], ['👏','Applaud'], ['👀','Eyes'], ['🤯','Mind blown']];
 
 function RoomSession({ room, user }: { room: RoomData; user: User }) {
-  const presence = usePresence(room.roomId, user);
+  const presence = usePresence(room, user);
   const { reactions, sendReaction, error: reactionError } = useReactions(room.roomId, user, presence.joined);
   const [localUrl, setLocalUrl] = useState('');
   const [error, setError] = useState('');
@@ -84,24 +84,7 @@ function RoomError({ detail }: { detail: string }) {
 export function Room() {
   const { roomId = '' } = useParams();
   const id = roomCodeFrom(roomId);
-  const { user, loading, login } = useAuth();
-  const [name, setName] = useState(rememberedName);
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-  async function join(event: FormEvent) {
-    event.preventDefault();
-    if (!name.trim()) { setError('Enter your display name.'); return; }
-    setBusy(true); setError('');
-    try { await login(name); } catch { setError('Could not join. Check your connection and try again.'); }
-    finally { setBusy(false); }
-  }
+  const { user } = useAuth();
   if (!id) return <RoomError detail="Check the six-character code in your invite." />;
-  if (loading) return <p className="loading-state" role="status">Restoring session…</p>;
-  if (user) return <ConnectedRoom key={id + user.uid} id={id} user={user} />;
-  return <section className="setup-wrap panel form-panel"><span className="card-icon"><MdMeetingRoom /></span>
-    <h1>Join room {id}</h1><p>Choose the name your friends will see.</p>
-    <form onSubmit={join} className="stack"><label>Your display name<input value={name} required maxLength={40} autoComplete="nickname" placeholder="Name in the room" onChange={e => setName(e.target.value)} /></label>
-      {error && <p className="error" role="alert">{error}</p>}
-      <button className="btn primary" disabled={busy}>{busy ? 'Joining…' : 'Join room'}</button>
-    </form></section>;
+  return user && <ConnectedRoom key={id + user.uid} id={id} user={user} />;
 }

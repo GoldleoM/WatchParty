@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { doc, runTransaction } from 'firebase/firestore';
 import { MdArrowBack, MdFolderOpen, MdLink, MdMovieCreation, MdOndemandVideo } from 'react-icons/md';
-import { rememberedName, useAuth } from '../contexts/session';
+import { useAuth } from '../contexts/session';
 import { db } from '../firebase/config';
 import type { Room, VideoType } from '../types';
 import { generateRoomId } from '../utils/cn';
@@ -15,8 +15,7 @@ const sources = [
 ] as const;
 
 export function CreateRoom() {
-  const { user, loading, login } = useAuth();
-  const [name, setName] = useState(rememberedName);
+  const { user, loading } = useAuth();
   const [type, setType] = useState<VideoType>('youtube');
   const [urls, setUrls] = useState({ youtube: '', mp4: '', local: '' });
   const [busy, setBusy] = useState(false);
@@ -29,11 +28,11 @@ export function CreateRoom() {
     if (busy || loading) return;
     const videoUrl = videoLink(urls[type], type);
     if (!videoUrl) { setError(type === 'youtube' ? 'Enter a link to a specific YouTube video.' : 'Enter a valid HTTPS link to your video.'); return; }
-    if (!user && !name.trim()) { setError('Enter your display name.'); return; }
+    if (!user) return;
     setBusy(true);
     setError('');
     try {
-      const host = user || await login(name);
+      const host = user;
       const roomId = await runTransaction(db, async tx => {
         for (let attempt = 0; attempt < 4; attempt++) {
           const id = generateRoomId();
@@ -58,7 +57,6 @@ export function CreateRoom() {
       <span className="card-icon"><MdMovieCreation /></span>
       <h1>Create a room</h1><p>Choose what everyone will watch.</p>
       <form className="stack" onSubmit={create}>
-        {!user && <label>Your display name<input value={name} onChange={e => setName(e.target.value)} maxLength={40} required autoComplete="nickname" placeholder="Name in the room" /></label>}
         <fieldset><legend>Video source</legend><div className="source-options">
           {sources.map(item => <label key={item.type} className="source-option">
             <input className="visually-hidden" type="radio" name="source" checked={item.type === type} onChange={() => { setType(item.type); setError(''); }} />

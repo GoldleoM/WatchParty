@@ -4,7 +4,8 @@ import type { User } from '../types';
 interface Session {
   user: User | null;
   loading: boolean;
-  login: (name: string) => Promise<User>;
+  pendingEmail: string | null;
+  anonymous: boolean;
   logout: () => Promise<void>;
 }
 export const AuthContext = createContext<Session | null>(null);
