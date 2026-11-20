@@ -8,6 +8,7 @@ import { useRoom } from '../hooks/useRoom';
 import { usePresence } from '../hooks/usePresence';
 import { useReactions } from '../hooks/useReactions';
 import { Screen } from '../components/video/Screen';
+import { YouTubeRoom } from '../components/youtube/YouTubeRoom';
 import { Sidebar } from '../components/room/Sidebar';
 import { roomCodeFrom } from '../utils/links';
 import type { Room as RoomData, RoomMember, User } from '../types';
@@ -57,7 +58,7 @@ function RoomSession({ room, user }: { room: RoomData; user: User }) {
     {(error || presence.error || reactionError) && <p role="alert" className="error">{error || presence.error || reactionError}</p>}
     <div className="room-grid">
       <section className="watch-column" aria-label="Screening">
-        {room.videoType === 'local' && !localUrl ? <div className="local-prompt">
+        {room.videoType === 'youtube' ? <YouTubeRoom room={room} user={user} joined={presence.joined} reactions={reactions} onBuffer={b => presence.updateStatus(b ? 'buffering' : 'watching')} /> : room.videoType === 'local' && !localUrl ? <div className="local-prompt">
           <MdFolderOpen /><h2>Choose your copy</h2>
           <p>Each person needs the same video file. Open the host’s download link, then select your copy here.</p>
           {/^https?:\/\//i.test(room.videoUrl) && <a className="text-button" href={room.videoUrl} target="_blank" rel="noreferrer">Open download link</a>}{fileInput}

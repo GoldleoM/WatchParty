@@ -36,9 +36,41 @@ service cloud.firestore {
       allow create: if verified() && roomId.matches('[A-Z0-9]{6}') && request.resource.data.roomId == roomId
         && request.resource.data.hostUid == request.auth.uid && nameValid(request.resource.data.hostName)
         && request.resource.data.videoType in ['youtube', 'mp4', 'local']
-        && request.resource.data.videoUrl is string && request.resource.data.videoUrl.matches('https://.+')
+        && request.resource.data.videoUrl is string && (request.resource.data.videoUrl.matches('https://.+')
+          || request.resource.data.videoType == 'youtube' && request.resource.data.videoUrl == '')
+        && request.resource.data.get('youtubeMode', 'videos') in ['videos','shorts']
         && request.resource.data.createdAt is number && validPlayback(request.resource.data)
-        && request.resource.data.keys().hasOnly(['roomId','hostUid','hostName','createdAt','videoType','videoUrl','playing','currentTime','playbackRate','lastUpdate']);
+        && request.resource.data.keys().hasOnly(['roomId','hostUid','hostName','createdAt','videoType','videoUrl','playing','currentTime','playbackRate','lastUpdate','youtubeMode']);
+      function ytHost() {
+        let r = get(/databases/$(database)/documents/rooms/$(roomId)).data;
+        return verified() && r.get('videoType','') == 'youtube' && r.hostUid == request.auth.uid && !r.get('closed',false);
+      }
+      allow update: if verified() && resource.data.get('videoType','') == 'youtube'
+        && resource.data.hostUid == request.auth.uid && !resource.data.get('closed',false)
+        && request.resource.data.youtubeMode in ['videos','shorts']
+        && (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['youtubeMode'])
+          || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['youtubeMode','videoTitle','videoUrl','selectionId','currentTime','playing','playbackRate','lastUpdate'])
+          && request.resource.data.videoTitle is string && request.resource.data.videoTitle.size() <= 160
+          && request.resource.data.selectionId is string && request.resource.data.selectionId.size() <= 64
+          && request.resource.data.videoUrl.matches('https://www[.]youtube[.]com/watch[?]v=[A-Za-z0-9_-]{11}') && validPlayback(request.resource.data));
+      match /queue/{videoId} {
+        allow read: if member();
+        allow create: if member() && liveMember(request.auth.uid)
+          && get(/databases/$(database)/documents/rooms/$(roomId)).data.videoType == 'youtube'
+          && videoId.matches('[A-Za-z0-9_-]{11}') && request.resource.data.id == videoId
+          && request.resource.data.uid == request.auth.uid && request.resource.data.createdAt == request.time
+          && request.resource.data.by == get(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.auth.uid)).data.displayName
+          && request.resource.data.title is string && request.resource.data.title.size() <= 160 && request.resource.data.short is bool
+          && request.resource.data.keys().hasOnly(['id','uid','by','createdAt','title','short']);
+        allow delete: if ytHost();
+        allow update: if ytHost() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['priority'])
+          && request.resource.data.priority == request.time;
+      }
+      match /youtube/browse {
+        allow read: if member();
+        allow create, update: if ytHost() && request.resource.data.keys().hasOnly(['videos'])
+          && request.resource.data.videos is list && request.resource.data.videos.size() <= 12;
+      }
       allow update: if verified() && !resource.data.get('closed', false) && resource.data.hostUid == request.auth.uid
         && (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['playing','currentTime','playbackRate','lastUpdate'])
             && validPlayback(request.resource.data)

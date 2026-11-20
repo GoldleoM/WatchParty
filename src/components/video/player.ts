@@ -10,6 +10,7 @@ export interface MediaControls {
   mute: (muted: boolean) => void;
 }
 export interface PlayerProps {
+  onEnded?: () => void;
   url: string;
   host: boolean;
   onReady: (media: MediaControls) => void;

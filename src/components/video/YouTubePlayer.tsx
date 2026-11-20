@@ -89,6 +89,7 @@ export function YouTubePlayer(props: PlayerProps) {
           onStateChange({ data }) {
             if (!active) return;
             if ([0, 1, 2].includes(data)) latest.current.onChange();
+            if (data === 0) latest.current.onEnded?.();
             if ([1, 2, 3].includes(data)) latest.current.onBuffer(data === 3);
           },
           onPlaybackRateChange: () => { if (active) latest.current.onChange(); },

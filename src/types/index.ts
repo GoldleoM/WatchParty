@@ -16,6 +16,9 @@ export interface RoomMember {
 }
 
 export interface Room {
+  youtubeMode?: 'videos' | 'shorts';
+  selectionId?: string;
+  videoTitle?: string;
   roomId: string;
   hostUid: string;
   hostName: string;

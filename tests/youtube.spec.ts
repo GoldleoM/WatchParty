@@ -1,0 +1,55 @@
+import { expect, test } from '@playwright/test';
+import { register } from './email';
+
+test('members discover and queue YouTube videos while the host shares and selects Shorts', async ({ page: host, browser }) => {
+  test.setTimeout(60000);
+  const guest = await browser.newPage();
+  const ids = ['M7lc1UVf-VE','aqz-KE-bpKQ','jNQXAC9IVRw'];
+  try {
+    for (const p of [host, guest]) {
+      await p.route('https://www.googleapis.com/youtube/v3/**', route => route.fulfill({
+        json: { items: ids.map((id,i) => ({ id:{ videoId:id }, snippet:{ title:'Clip ' + i } })) },
+      }));
+      await p.route('https://www.youtube.com/iframe_api', route => route.fulfill({ contentType:'text/javascript', body:
+        'window.YT={Player:class{constructor(node,options){this.node=node;node.dataset.playingId=options.videoId}destroy(){this.node.remove()}}};window.onYouTubeIframeAPIReady();' }));
+    }
+    await host.goto('/create'); await register(host,'Director');
+    await host.getByRole('radio',{name:'Shorts',exact:true}).check();
+    await host.getByRole('button',{name:'Create room'}).click();
+    await expect(host.getByRole('heading',{name:'Pick the first Short'})).toBeVisible();
+    await guest.goto(host.url()); await register(guest,'Viewer');
+    const search = guest.getByRole('textbox',{name:'Search YouTube or paste a link'});
+    await search.fill('https://youtu.be/' + ids[0]);
+    await guest.getByRole('button',{name:'Add to queue'}).click();
+    await expect(host.locator('.yt-queue')).toContainText('Added by Viewer');
+    await expect(guest.getByRole('button',{name:'Play next'})).toHaveCount(0);
+    await host.getByRole('button',{name:'Play next'}).click();
+    await expect(guest.locator('[data-playing-id]')).toHaveAttribute('data-playing-id',ids[0]);
+    await expect(guest.locator('.yt-queue li')).toHaveCount(0);
+    await host.getByRole('button',{name:'Switch to Shorts'}).click();
+    await host.getByRole('textbox',{name:'Search YouTube or paste a link'}).fill('surfing');
+    await host.getByRole('button',{name:'Search',exact:true}).click();
+    await host.getByRole('button',{name:'Share browsing with room'}).click();
+    await expect(guest.getByRole('heading',{name:'On the host’s screen'})).toBeVisible();
+    await host.getByRole('button',{name:'Scroll Shorts together'}).click();
+    await host.locator('.shorts-rail').evaluate(el => el.scrollTop = el.clientHeight);
+    await expect(guest.locator('[data-playing-id]')).toHaveAttribute('data-playing-id',ids[1]);
+    await guest.reload();
+    await expect(guest.locator('[data-playing-id]')).toHaveAttribute('data-playing-id',ids[1]);
+    await host.evaluate(() => {
+      window.addEventListener('message', event => {
+        const msg = event.data;
+        if (msg?.source === 'watchparty-room' && msg.kind === 'open') {
+          window.postMessage({ source:'watchparty-companion', session:msg.session, kind:'media', request:'sample',
+            video:{ id:'jNQXAC9IVRw', title:'Native Short', short:true }, playing:true, time:1, rate:1 }, location.origin);
+        }
+      });
+      window.postMessage({source:'watchparty-companion',kind:'installed'},location.origin);
+    });
+    await host.getByRole('button',{name:'Open shared YouTube tab'}).click();
+    await expect(host.getByRole('heading',{name:'Sharing from YouTube'})).toBeVisible();
+    await expect(guest.locator('[data-playing-id]')).toHaveAttribute('data-playing-id',ids[2]);
+    await host.getByRole('button',{name:'Return playback here'}).click();
+    await expect(host.locator('[data-playing-id]')).toHaveAttribute('data-playing-id',ids[2]);
+  } finally { await guest.close(); }
+});

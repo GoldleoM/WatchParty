@@ -10,7 +10,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev -- --host 127.0.0.1 --port 5189 --strictPort',
     url: 'http://127.0.0.1:5189',
-    env: { VITE_USE_EMULATORS: 'true' },
+    env: { VITE_USE_EMULATORS: 'true', VITE_YOUTUBE_API_KEY: 'emulator-catalogue' },
     reuseExistingServer: false,
   },
 });

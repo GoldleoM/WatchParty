@@ -2,12 +2,17 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { createUserWithEmailAndPassword, EmailAuthProvider, linkWithCredential, sendEmailVerification,
   sendPasswordResetEmail, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
+import { GoogleAuthProvider, linkWithPopup, signInWithPopup } from 'firebase/auth';
 import { auth } from '../firebase/auth';
 import { rememberedName, useAuth } from '../contexts/session';
 
 function errorText(err: unknown) {
   const code = err instanceof FirebaseError ? err.code : '';
   switch (code) {
+    case 'auth/popup-blocked': return 'Allow the Google sign-in popup, then try again.';
+    case 'auth/popup-closed-by-user':
+    case 'auth/cancelled-popup-request': return 'Google sign-in was cancelled.';
+    case 'auth/account-exists-with-different-credential': return 'Sign in with the password for this email address.';
     case 'auth/email-already-in-use': return 'This email already has an account. Sign in or reset your password.';
     case 'auth/invalid-email': return 'Enter a valid email address.';
     case 'auth/weak-password':
@@ -84,6 +89,12 @@ export function AccountGate({ children }: { children: ReactNode }) {
   return <section className="setup-wrap panel form-panel">
     <h1>{mode === 'register' ? 'Create an account' : mode === 'reset' ? 'Reset your password' : 'Sign in'}</h1>
     <p>{anonymous ? 'Register an email and password in this browser to keep your existing rooms.' : 'Use a verified account to host or join a room.'}</p>
+    {mode !== 'reset' && <button className="btn secondary" disabled={busy} onClick={() => run(async () => {
+      const provider = new GoogleAuthProvider();
+      const current = auth.currentUser;
+      if (current?.isAnonymous) await linkWithPopup(current, provider);
+      else await signInWithPopup(auth, provider);
+    })}>Continue with Google</button>}
     <form className="stack" onSubmit={submit}>
       {mode === 'register' && <label>Your display name<input required maxLength={40} autoComplete="nickname" value={name} onChange={e => setName(e.target.value)} /></label>}
       <label>Email address<input type="email" required autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} /></label>

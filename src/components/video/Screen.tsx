@@ -9,6 +9,7 @@ import { SubtitleOverlay } from './SubtitleOverlay';
 import type { MediaControls } from './player';
 
 interface Props {
+  onEnded?: () => void;
   room: Room;
   host: boolean;
   url: string;
@@ -16,7 +17,7 @@ interface Props {
   reactions: Reaction[];
 }
 
-export function Screen({ room, host, url, onBuffer, reactions }: Props) {
+export function Screen({ room, host, url, onBuffer, reactions, onEnded }: Props) {
   const [media, setMedia] = useState<MediaControls | null>(null);
   const [blocked, setBlocked] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -76,7 +77,7 @@ export function Screen({ room, host, url, onBuffer, reactions }: Props) {
   return <>
     <div className="screen-wrap" ref={frame}>
       <div className="screen">
-        <Player key={load} url={url} host={host} onReady={setMedia} onChange={() => {
+        <Player key={load} url={url} host={host} onEnded={onEnded} onReady={setMedia} onChange={() => {
           if (media?.playing()) setBlocked(false);
           if (host) publish();
         }} onBuffer={onBuffer} onBlocked={() => setBlocked(true)} onError={setFailure} />

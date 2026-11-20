@@ -15,6 +15,27 @@
   --panel: #211e20;
   --display: "Barlow Condensed", "Arial Narrow", sans-serif;
 }
+.yt-room { display: grid; gap: .8rem; min-width: 0; }
+.yt-toolbar, .yt-search, .clip-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .55rem; }
+.yt-toolbar { justify-content: space-between; }
+.yt-section { min-width: 0; padding: 1rem; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); display: grid; gap: .75rem; }
+.yt-section h2 { font-size: 1.15rem; }
+.yt-section p, .yt-notice, .yt-queue small { color: var(--soft); font-size: .9rem; line-height: 1.5; }
+.yt-section summary { color: var(--amber); cursor: pointer; font-weight: 600; }
+.yt-section details p { margin: .65rem 0; }
+.yt-search input { flex: 1 1 12rem; }
+.clip-list, .yt-queue { list-style: none; padding: 0; margin: 0; max-height: 24rem; overflow-y: auto; overscroll-behavior: contain; }
+.clip-list li, .yt-queue li { display: flex; align-items: center; gap: .7rem; padding: .65rem 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.clip-list img { width: clamp(72px,18%,134px); aspect-ratio: 16/9; object-fit: cover; border-radius: 5px; }
+.clip-list a { font-weight: 600; }
+.clip-actions button { background: transparent; color: var(--amber); padding: .45rem .25rem; border: 0; font-weight: 600; }
+.yt-queue li { justify-content: space-between; flex-wrap: wrap; }
+.yt-queue small { display: block; }
+.yt-notice:empty { display: none; }
+.shorts-mode .screen { aspect-ratio: 9/16; width: min(100%, 37vh); margin-inline: auto; }
+.shorts-rail { height: 15rem; overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 8px; }
+.shorts-rail article { height: 100%; scroll-snap-align: start; display: grid; justify-items: center; align-content: center; gap: .4rem; text-align: center; padding: .65rem; }
+.shorts-rail img { height: 7.5rem; max-width: 100%; object-fit: contain; }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 280px; }
 button, input { font: inherit; }

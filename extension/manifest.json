@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "WatchParty for YouTube",
+  "description": "Queue videos from YouTube and share the host’s browsing and Shorts with a WatchParty room.",
+  "version": "1.0.0",
+  "permissions": ["storage", "contextMenus"],
+  "host_permissions": ["https://www.youtube.com/*", "https://watchparty-d9b26.web.app/*", "https://watchparty-d9b26.firebaseapp.com/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    { "matches": ["https://watchparty-d9b26.web.app/*", "https://watchparty-d9b26.firebaseapp.com/*"], "js": ["room.js"] },
+    { "matches": ["https://www.youtube.com/*"], "js": ["youtube.js"] }
+  ]
+}

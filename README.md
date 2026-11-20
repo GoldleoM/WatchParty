@@ -16,6 +16,10 @@ Verify your email before entering a room. Sign back in with the same account to 
 
 ## Production
 
+YouTube rooms can start empty. Members search public videos, paste links, and add items to a shared queue. The host selects the current video, moves entries to the front, or removes them. Embedded playback advances when a video ends. In Shorts mode the host can scroll short-video search results to change the room’s player.
+
+For public search, enable YouTube Data API v3 and set `VITE_YOUTUBE_API_KEY` to a browser key restricted to that API and your hosting domains. Enable Google in Firebase Authentication with the project’s support email and authorized hosting domains. WatchParty uses Google’s account chooser. Members can use their personalized youtube.com feed through the optional Chrome/Edge companion. The room links to its downloadable archive and installation instructions. The host explicitly opens a shared tab to share visible video titles, selections, and playback. A guest’s tab shares only videos they add to the queue. The companion runs in the desktop browser profile where YouTube is signed in.
+
 The browser regression suite covers a host and a mobile guest using isolated Firebase emulators. Install the test browser with `npx playwright install chromium`, then run `firebase emulators:exec --only auth,firestore --project demo-watchparty "npm run test:e2e"`. The suite starts its own dev server. Set `WATCHPARTY_BROWSER_CHANNEL=chrome` to use an installed Chrome browser.
 
 Run `npm run lint` and `npm run build`. The deployable files are in `dist/`. Set the Firebase web configuration at build time and configure the host to serve `index.html` for room links and other application routes. Firebase Hosting rewrites are defined in `firebase.json`.

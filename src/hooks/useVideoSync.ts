@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, runTransaction, updateDoc } from 'firebase/firestore';
 import type { Room } from '../types';
 import type { MediaControls } from '../components/video/player';
 import { db } from '../firebase/config';
@@ -16,13 +16,19 @@ function followRoom(media: MediaControls, room: Room) {
 export function useVideoSync(room: Room, host: boolean, media: MediaControls | null) {
   const [error, setError] = useState('');
   const initialized = useRef<MediaControls | null>(null);
-  const { roomId } = room;
+  const { roomId, selectionId } = room;
   const publish = useCallback(() => {
     if (!host || !media) return;
-    void updateDoc(doc(db, 'rooms', roomId), {
+    const ref = doc(db, 'rooms', roomId);
+    const state = {
       playing: media.playing(), currentTime: media.time(), playbackRate: media.rate(), lastUpdate: Date.now(),
-    }).then(() => setError('')).catch(() => setError('Playback could not sync. Check your connection.'));
-  }, [media, host, roomId]);
+    };
+    const write = room.videoType === 'youtube' ? runTransaction(db, async tx => {
+      const snapshot = await tx.get(ref);
+      if (snapshot.exists() && !snapshot.data().closed && snapshot.data().selectionId === selectionId) tx.update(ref, state);
+    }) : updateDoc(ref, state);
+    void write.then(() => setError('')).catch(() => setError('Playback could not sync. Check your connection.'));
+  }, [media, host, roomId, room.videoType, selectionId]);
 
   useEffect(() => {
     if (!media) return;

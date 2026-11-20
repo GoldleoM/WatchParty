@@ -9,7 +9,7 @@ import { generateRoomId } from '../utils/cn';
 import { videoLink } from '../utils/links';
 
 const sources = [
-  { type: 'youtube', name: 'YouTube', icon: MdOndemandVideo, label: 'YouTube video link', hint: 'Use a watch link, Short, or share link for a video that allows embedding.' },
+  { type: 'youtube', name: 'YouTube', icon: MdOndemandVideo, label: 'YouTube video link (optional)', hint: 'Start with a link or browse and queue videos together in the room.' },
   { type: 'mp4', name: 'Video link', icon: MdLink, label: 'Direct video link', hint: 'Use an HTTPS link to a playable video file, such as an MP4.' },
   { type: 'local', name: 'Local file', icon: MdFolderOpen, label: 'File download link', hint: 'Share a download link. Everyone selects their own copy of the same video in the room.' },
 ] as const;
@@ -19,6 +19,7 @@ export function CreateRoom() {
   const [type, setType] = useState<VideoType>('youtube');
   const [urls, setUrls] = useState({ youtube: '', mp4: '', local: '' });
   const [busy, setBusy] = useState(false);
+  const [mode, setMode] = useState<'videos' | 'shorts'>('videos');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const source = sources.find(item => item.type === type)!;
@@ -26,8 +27,8 @@ export function CreateRoom() {
   async function create(event: FormEvent) {
     event.preventDefault();
     if (busy || loading) return;
-    const videoUrl = videoLink(urls[type], type);
-    if (!videoUrl) { setError(type === 'youtube' ? 'Enter a link to a specific YouTube video.' : 'Enter a valid HTTPS link to your video.'); return; }
+    const videoUrl = type === 'youtube' && !urls[type].trim() ? '' : videoLink(urls[type], type);
+    if (videoUrl === null) { setError(type === 'youtube' ? 'Enter a link to a specific YouTube video.' : 'Enter a valid HTTPS link to your video.'); return; }
     if (!user) return;
     setBusy(true);
     setError('');
@@ -40,7 +41,7 @@ export function CreateRoom() {
           if ((await tx.get(ref)).exists()) continue;
           const now = Date.now();
           const room: Room = { roomId: id, hostUid: host.uid, hostName: host.displayName, createdAt: now, videoType: type, videoUrl, playing: false, currentTime: 0, playbackRate: 1, lastUpdate: now };
-          tx.set(ref, room);
+          tx.set(ref, type === 'youtube' ? { ...room, youtubeMode: mode } : room);
           return id;
         }
         throw new Error('Room code unavailable');
@@ -63,7 +64,8 @@ export function CreateRoom() {
             <item.icon />{item.name}
           </label>)}
         </div></fieldset>
-        <label>{source.label}<input value={urls[type]} onChange={e => { setUrls({ ...urls, [type]: e.target.value }); setError(''); }} required placeholder={type === 'youtube' ? 'https://youtu.be/…' : 'https://…'} inputMode="url" autoComplete="off" spellCheck={false} aria-describedby="source-hint" /><small id="source-hint">{source.hint}</small></label>
+        {type === 'youtube' && <fieldset><legend>Room mode</legend><div className="source-options">{(['videos', 'shorts'] as const).map(m => <label className="source-option" key={m}><input className="visually-hidden" type="radio" name="youtube-mode" checked={mode === m} onChange={() => setMode(m)} />{m === 'videos' ? 'Videos' : 'Shorts'}</label>)}</div></fieldset>}
+        <label>{source.label}<input value={urls[type]} onChange={e => { setUrls({ ...urls, [type]: e.target.value }); setError(''); }} required={type !== 'youtube'} placeholder={type === 'youtube' ? 'https://youtu.be/…' : 'https://…'} inputMode="url" autoComplete="off" spellCheck={false} aria-describedby="source-hint" /><small id="source-hint">{source.hint}</small></label>
         {error && <p className="error" role="alert">{error}</p>}
         <button className="btn primary" disabled={busy || loading}>{busy ? 'Creating room…' : 'Create room'}</button>
       </form>
