@@ -11,6 +11,7 @@ export function Navbar() {
     <nav className="shell nav-inner" aria-label="Main navigation">
       <Link to="/" className="wordmark"><span className="brand-icon"><MdLocalMovies /></span>WatchParty</Link>
       <div className="nav-right">
+        <Link className="nav-link" to="/live">Indian live TV</Link>
         {user && <span className="identity"><b aria-hidden="true">{Array.from(user.displayName)[0]}</b><span>{user.displayName}</span></span>}
         {pathname !== '/' ? <Link to="/" className="nav-link"><MdMeetingRoom /> Lobby</Link> : null}
         {

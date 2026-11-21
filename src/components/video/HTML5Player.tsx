@@ -7,6 +7,7 @@ export function HTML5Player({ url, host, onReady, onChange, onBuffer, onBlocked,
       onReady({
         time: () => video.currentTime, duration: () => video.duration,
         playing: () => !video.paused && !video.ended, rate: () => video.playbackRate,
+        buffering: () => video.seeking || (!video.paused && video.readyState < video.HAVE_FUTURE_DATA),
         setRate: rate => { video.playbackRate = rate; },
         seek: time => { video.currentTime = time; },
         play: () => { void video.play().catch((err: DOMException) => {
@@ -16,7 +17,7 @@ export function HTML5Player({ url, host, onReady, onChange, onBuffer, onBlocked,
         pause: () => video.pause(), mute: muted => { video.muted = muted; },
       });
     }}
-    onPlay={onChange} onPause={onChange} onEnded={onChange} onSeeked={onChange} onRateChange={onChange}
+    onPlay={onChange} onPause={onChange} onEnded={onChange} onSeeking={onChange} onSeeked={onChange} onRateChange={onChange}
     onPlaying={() => onBuffer(false)} onWaiting={() => onBuffer(true)}
     onError={() => onError('This video could not be loaded. Check the file format or source link.')}
   />;

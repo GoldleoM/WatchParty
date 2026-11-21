@@ -1,0 +1,1108 @@
+[
+  {
+    "id": "DDSports",
+    "feedId": "DDSports.in@SD",
+    "name": "DD Sports",
+    "category": "Sports",
+    "languages": [
+      "Hindi",
+      "English"
+    ],
+    "logo": "/live-logos/DDSports.webp",
+    "url": "https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/b17adfe543354fdd8d189b110617cddd/index.m3u8"
+  },
+  {
+    "id": "AajTak",
+    "feedId": "AajTak.in@SD",
+    "name": "Aaj Tak",
+    "category": "News",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/AajTak.webp",
+    "url": "https://d1rc86nwwc9fag.cloudfront.net/vglive-sk-791258/master.m3u8"
+  },
+  {
+    "id": "B4UMusic",
+    "feedId": "B4UMusic.in@India",
+    "name": "B4U Music",
+    "category": "Music",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/B4UMusic.webp",
+    "url": "https://amg00877-b4unew-amg00877c3-xiaomi-in-5474.playouts.now.amagi.tv/720p/index.m3u8"
+  },
+  {
+    "id": "IndiaToday",
+    "feedId": "IndiaToday.in@SD",
+    "name": "India Today",
+    "category": "News",
+    "languages": [
+      "English"
+    ],
+    "logo": "/live-logos/IndiaToday.webp",
+    "url": "https://d2lk5u59tns74c.cloudfront.net/out/v1/d4435039c7d1433d9b9d0b6cdc9dd4ff/index.m3u8"
+  },
+  {
+    "id": "DDBharati",
+    "feedId": "DDBharati.in@SD",
+    "name": "DD Bharati",
+    "category": "Culture",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "",
+    "url": "https://cdn.pishow.tv/ott/live/10/master.m3u8"
+  },
+  {
+    "id": "DDTamil",
+    "feedId": "DDTamil.in@HD",
+    "name": "DD Tamil HD",
+    "category": "General",
+    "languages": [
+      "Tamil"
+    ],
+    "logo": "/live-logos/DDTamil.webp",
+    "url": "https://cdn.pishow.tv/ott/live/1737/master.m3u8"
+  },
+  {
+    "id": "ABPAnanda",
+    "feedId": "ABPAnanda.in@SD",
+    "name": "ABP Ananda",
+    "category": "News",
+    "languages": [
+      "Bengali"
+    ],
+    "logo": "/live-logos/ABPAnanda.webp",
+    "url": "https://d2l4ar6y3mrs4k.cloudfront.net/live-streaming/ananda-livetv/master.m3u8"
+  },
+  {
+    "id": "AsianetNews",
+    "feedId": "AsianetNews.in@SD",
+    "name": "Asianet News",
+    "category": "News",
+    "languages": [
+      "Malayalam"
+    ],
+    "logo": "/live-logos/AsianetNews.webp",
+    "url": "https://amg13737-amg13737c1-amgplt0016.playout.now3.amagi.tv/playlist/amg13737-amg13737c1-amgplt0016/playlist.m3u8"
+  },
+  {
+    "id": "9XJalwa",
+    "feedId": "9XJalwa.in@SD",
+    "name": "9X Jalwa",
+    "category": "Music",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/9XJalwa.webp",
+    "url": "https://wiselp.wiseplayout.com/9X_Jalwa/master.m3u8"
+  },
+  {
+    "id": "TV9Telugu",
+    "feedId": "TV9Telugu.in@SD",
+    "name": "TV9 Telugu",
+    "category": "News",
+    "languages": [
+      "Telugu"
+    ],
+    "logo": "/live-logos/TV9Telugu.webp",
+    "url": "https://amg01106-amg01106c4-amgplt0747.playout.now3.amagi.tv/amg01106c4/hls.m3u8"
+  },
+  {
+    "id": "ABPMajha",
+    "feedId": "ABPMajha.in@SD",
+    "name": "ABP Majha",
+    "category": "News",
+    "languages": [
+      "Marathi"
+    ],
+    "logo": "/live-logos/ABPMajha.webp",
+    "url": "https://cdn.pishow.tv/ott/live/471/master.m3u8"
+  },
+  {
+    "id": "ABPAsmita",
+    "feedId": "ABPAsmita.in@SD",
+    "name": "ABP Asmita",
+    "category": "News",
+    "languages": [
+      "Gujarati"
+    ],
+    "logo": "",
+    "url": "https://d2l4ar6y3mrs4k.cloudfront.net/live-streaming/asmita-livetv/master.m3u8"
+  },
+  {
+    "id": "PublicTV",
+    "feedId": "PublicTV.in@SD",
+    "name": "Public TV",
+    "category": "News",
+    "languages": [
+      "Kannada"
+    ],
+    "logo": "/live-logos/PublicTV.webp",
+    "url": "https://cdn.pishow.tv/ott/live/439/master.m3u8"
+  },
+  {
+    "id": "KappaTV",
+    "feedId": "KappaTV.in@SD",
+    "name": "Kappa TV",
+    "category": "Music",
+    "languages": [
+      "Malayalam"
+    ],
+    "logo": "/live-logos/KappaTV.webp",
+    "url": "https://d1msejlow1t3l4.cloudfront.net/fta/kappatv/playlist.m3u8"
+  },
+  {
+    "id": "SangeetBangla",
+    "feedId": "SangeetBangla.in@SD",
+    "name": "Sangeet Bangla",
+    "category": "Music",
+    "languages": [
+      "Bengali"
+    ],
+    "logo": "/live-logos/SangeetBangla.webp",
+    "url": "https://cdn.pishow.tv/ott/live/1143/master.m3u8"
+  },
+  {
+    "id": "DDBangla",
+    "feedId": "DDBangla.in@SD",
+    "name": "DD Bangla",
+    "category": "General",
+    "languages": [
+      "Bengali"
+    ],
+    "logo": "/live-logos/DDBangla.webp",
+    "url": "https://cdn.pishow.tv/ott/live/37/master.m3u8"
+  },
+  {
+    "id": "DDKisan",
+    "feedId": "DDKisan.in@SD",
+    "name": "DD Kisan",
+    "category": "Agriculture",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "",
+    "url": "https://mumbai-edge.smartplaytv.in/DDKisan/index.m3u8"
+  },
+  {
+    "id": "NDTVProfit",
+    "feedId": "NDTVProfit.in@SD",
+    "name": "NDTV Profit",
+    "category": "Business",
+    "languages": [
+      "English"
+    ],
+    "logo": "/live-logos/NDTVProfit.webp",
+    "url": "https://ndtvprofit.akamaized.net/hls/live/2107404/ndtvprofit/chunklist_5.m3u8"
+  },
+  {
+    "id": "RajMusixKannada",
+    "feedId": "RajMusixKannada.in@SD",
+    "name": "Raj Musix Kannada",
+    "category": "Music",
+    "languages": [
+      "Kannada"
+    ],
+    "logo": "",
+    "url": "https://mumt01.tangotv.in/O5aw8Zn3RAJMUSIXKANDA/index.m3u8"
+  },
+  {
+    "id": "DDNews",
+    "feedId": "DDNews.in@SD",
+    "name": "DD News",
+    "category": "News",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/DDNews.webp",
+    "url": "https://mumbai-edge.smartplaytv.in/DDNews/index.m3u8"
+  },
+  {
+    "id": "News18TamilNadu",
+    "feedId": "News18TamilNadu.in@SD",
+    "name": "News18 Tamil Nadu",
+    "category": "News",
+    "languages": [
+      "Tamil"
+    ],
+    "logo": "/live-logos/News18TamilNadu.webp",
+    "url": "https://n18syndication.akamaized.net/bpk-tv/News18_Tamil_Nadu_NW18_MOB/output01/master.m3u8"
+  },
+  {
+    "id": "ABPNews",
+    "feedId": "ABPNews.in@SD",
+    "name": "ABP News",
+    "category": "News",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/ABPNews.webp",
+    "url": "https://abpmitv.akamaized.net/hls/live/2042842/abpnews/master.m3u8"
+  },
+  {
+    "id": "7SMusic",
+    "feedId": "7SMusic.in@SD",
+    "name": "7S Music",
+    "category": "Music",
+    "languages": [
+      "Tamil"
+    ],
+    "logo": "",
+    "url": "https://cdn.pishow.tv/ott/live/1257/master.m3u8"
+  },
+  {
+    "id": "AakaashAath",
+    "feedId": "AakaashAath.in@SD",
+    "name": "Aakaash Aath",
+    "category": "Entertainment",
+    "languages": [
+      "Bengali"
+    ],
+    "logo": "/live-logos/AakaashAath.webp",
+    "url": "https://cdn.pishow.tv/ott/live/969/master.m3u8"
+  },
+  {
+    "id": "Aastha",
+    "feedId": "Aastha.in@HD",
+    "name": "Aastha",
+    "category": "Religious",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "",
+    "url": "https://aasthaott.akamaized.net/110923/smil:aasthatv.smil/index.m3u8"
+  },
+  {
+    "id": "AasthaBhajan",
+    "feedId": "AasthaBhajan.in@SD",
+    "name": "Aastha Bhajan",
+    "category": "Religious",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/AasthaBhajan.webp",
+    "url": "https://d2lk5u59tns74c.cloudfront.net/out/v1/218f9e64bdce42369500e93cff50572f/index.m3u8"
+  },
+  {
+    "id": "ABPGanga",
+    "feedId": "ABPGanga.in@SD",
+    "name": "ABP Ganga",
+    "category": "News",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "",
+    "url": "https://d2l4ar6y3mrs4k.cloudfront.net/live-streaming/ganga-livetv/master.m3u8"
+  },
+  {
+    "id": "AlankarTV",
+    "feedId": "AlankarTV.in@SD",
+    "name": "Alankar TV",
+    "category": "Movies",
+    "languages": [
+      "Odia"
+    ],
+    "logo": "/live-logos/AlankarTV.webp",
+    "url": "https://livetv.tarangplus.in/alankar-origin/live/playlist.m3u8"
+  },
+  {
+    "id": "AmritaTV",
+    "feedId": "AmritaTV.in@SD",
+    "name": "Amrita TV",
+    "category": "Entertainment",
+    "languages": [
+      "Malayalam"
+    ],
+    "logo": "",
+    "url": "https://ddash74r36xqp.cloudfront.net/master.m3u8"
+  },
+  {
+    "id": "ArgusNews",
+    "feedId": "ArgusNews.in@SD",
+    "name": "Argus News",
+    "category": "News",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/ArgusNews.webp",
+    "url": "https://d1msejlow1t3l4.cloudfront.net/fta/argusnews/playlist.m3u8"
+  },
+  {
+    "id": "AsianetSuvarnaNews",
+    "feedId": "AsianetSuvarnaNews.in@SD",
+    "name": "Asianet Suvarna News",
+    "category": "News",
+    "languages": [
+      "Kannada"
+    ],
+    "logo": "/live-logos/AsianetSuvarnaNews.webp",
+    "url": "https://asianet-prasarbharati.vgcdn.net/out/v1/bd05c931d9d94d288bbe455cc0f7e229/playlist.m3u8"
+  },
+  {
+    "id": "AssamTalks",
+    "feedId": "AssamTalks.in@SD",
+    "name": "Assam Talks",
+    "category": "News",
+    "languages": [
+      "Assamese"
+    ],
+    "logo": "/live-logos/AssamTalks.webp",
+    "url": "https://cdn.pishow.tv/ott/live/258/master.m3u8"
+  },
+  {
+    "id": "B4UBhojpuri",
+    "feedId": "B4UBhojpuri.in@SD",
+    "name": "B4U Bhojpuri",
+    "category": "Movies",
+    "languages": [
+      "Bhojpuri"
+    ],
+    "logo": "",
+    "url": "https://cdnb4u.wiseplayout.com/B4U_Bhojpuri/master.m3u8"
+  },
+  {
+    "id": "B4UKadak",
+    "feedId": "B4UKadak.in@SD",
+    "name": "B4U Kadak",
+    "category": "Movies",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/B4UKadak.webp",
+    "url": "https://amg00877-b4unew-amg00877c4-xiaomi-in-5473.playouts.now.amagi.tv/playlist.m3u8"
+  },
+  {
+    "id": "B4UMovies",
+    "feedId": "B4UMovies.in@India",
+    "name": "B4U Movies",
+    "category": "Movies",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "",
+    "url": "https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8"
+  },
+  {
+    "id": "BalleBalle",
+    "feedId": "BalleBalle.in@SD",
+    "name": "Balle Balle",
+    "category": "Music",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/BalleBalle.webp",
+    "url": "https://mcncdndigital.com/worldpunjabitv/index.m3u8"
+  },
+  {
+    "id": "ChannelDivya",
+    "feedId": "ChannelDivya.in@SD",
+    "name": "Channel Divya",
+    "category": "Religious",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/ChannelDivya.webp",
+    "url": "https://d2lk5u59tns74c.cloudfront.net/out/v1/40f46fa036df45ee9d28b6eda42eb27c/index.m3u8"
+  },
+  {
+    "id": "CNBCAwaaz",
+    "feedId": "CNBCAwaaz.in@SD",
+    "name": "CNBC Awaaz",
+    "category": "Business",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/CNBCAwaaz.webp",
+    "url": "https://n18syndication.akamaized.net/bpk-tv/CNBC_Awaaz_NW18_MOB/output01/master.m3u8"
+  },
+  {
+    "id": "CNBCTV18",
+    "feedId": "CNBCTV18.in@SD",
+    "name": "CNBC TV18",
+    "category": "Business",
+    "languages": [
+      "English"
+    ],
+    "logo": "/live-logos/CNBCTV18.webp",
+    "url": "https://n18syndication.akamaized.net/bpk-tv/CNBC_TV18_NW18_MOB/output01/index.m3u8"
+  },
+  {
+    "id": "CNNNews18",
+    "feedId": "CNNNews18.in@SD",
+    "name": "CNN News 18",
+    "category": "News",
+    "languages": [
+      "English"
+    ],
+    "logo": "/live-logos/CNNNews18.webp",
+    "url": "https://n18syndication.akamaized.net/bpk-tv/CNN_News18_NW18_MOB/output01/master.m3u8"
+  },
+  {
+    "id": "Dangal2",
+    "feedId": "Dangal2.in@SD",
+    "name": "Dangal 2",
+    "category": "Entertainment",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "",
+    "url": "https://live-dangal2.akamaized.net/liveabr/playlist.m3u8"
+  },
+  {
+    "id": "DDArunPrabha",
+    "feedId": "DDArunPrabha.in@SD",
+    "name": "DD Arun Prabha",
+    "category": "General",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/DDArunPrabha.webp",
+    "url": "https://cdn.pishow.tv/ott/live/32/master.m3u8"
+  },
+  {
+    "id": "DDBihar",
+    "feedId": "DDBihar.in@SD",
+    "name": "DD Bihar",
+    "category": "General",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "",
+    "url": "https://cdn.pishow.tv/ott/live/35/master.m3u8"
+  },
+  {
+    "id": "DDChandana",
+    "feedId": "DDChandana.in@SD",
+    "name": "DD Chandana",
+    "category": "General",
+    "languages": [
+      "Kannada"
+    ],
+    "logo": "/live-logos/DDChandana.webp",
+    "url": "https://cdn.pishow.tv/ott/live/28/master.m3u8"
+  },
+  {
+    "id": "DDJharkhand",
+    "feedId": "DDJharkhand.in@SD",
+    "name": "DD Jharkhand",
+    "category": "General",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/DDJharkhand.webp",
+    "url": "https://cdn.pishow.tv/ott/live/1617/master.m3u8"
+  },
+  {
+    "id": "DDKashir",
+    "feedId": "DDKashir.in@SD",
+    "name": "DD Kashir",
+    "category": "General",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/DDKashir.webp",
+    "url": "https://cdn.pishow.tv/ott/live/16/master.m3u8"
+  },
+  {
+    "id": "DDMadhyaPradesh",
+    "feedId": "DDMadhyaPradesh.in@SD",
+    "name": "DD Madhya Pradesh",
+    "category": "General",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/DDMadhyaPradesh.webp",
+    "url": "https://mumbai-edge.smartplaytv.in/ddmadhyapradesh/index.m3u8"
+  },
+  {
+    "id": "DDMeghalaya",
+    "feedId": "DDMeghalaya.in@SD",
+    "name": "DD Meghalaya",
+    "category": "General",
+    "languages": [
+      "English"
+    ],
+    "logo": "/live-logos/DDMeghalaya.webp",
+    "url": "https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/4f81bc8d13dd49b484da35988abb8729/index.m3u8"
+  },
+  {
+    "id": "DDRajasthan",
+    "feedId": "DDRajasthan.in@SD",
+    "name": "DD Rajasthan",
+    "category": "General",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/DDRajasthan.webp",
+    "url": "https://cdn.pishow.tv/ott/live/34/master.m3u8"
+  },
+  {
+    "id": "DDSaptagiri",
+    "feedId": "DDSaptagiri.in@SD",
+    "name": "DD Saptagiri",
+    "category": "General",
+    "languages": [
+      "Telugu"
+    ],
+    "logo": "/live-logos/DDSaptagiri.webp",
+    "url": "https://cdn.pishow.tv/ott/live/22/master.m3u8"
+  },
+  {
+    "id": "DDUrdu",
+    "feedId": "DDUrdu.in@SD",
+    "name": "DD Urdu",
+    "category": "General",
+    "languages": [
+      "Urdu",
+      "Hindi",
+      "English"
+    ],
+    "logo": "/live-logos/DDUrdu.webp",
+    "url": "https://cdn.pishow.tv/ott/live/8/master.m3u8"
+  },
+  {
+    "id": "DDUttarPradesh",
+    "feedId": "DDUttarPradesh.in@SD",
+    "name": "DD Uttar Pradesh",
+    "category": "General",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/DDUttarPradesh.webp",
+    "url": "https://cdn.pishow.tv/ott/live/36/master.m3u8"
+  },
+  {
+    "id": "DDUttarakhand",
+    "feedId": "DDUttarakhand.in@SD",
+    "name": "DD Uttarakhand",
+    "category": "General",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/DDUttarakhand.webp",
+    "url": "https://cdn.pishow.tv/ott/live/17/master.m3u8"
+  },
+  {
+    "id": "DhoomMusic",
+    "feedId": "DhoomMusic.in@SD",
+    "name": "Dhoom Music",
+    "category": "Music",
+    "languages": [
+      "Bengali"
+    ],
+    "logo": "/live-logos/DhoomMusic.webp",
+    "url": "https://cdn.pishow.tv/ott/live/1456/master.m3u8"
+  },
+  {
+    "id": "DY365",
+    "feedId": "DY365.in@SD",
+    "name": "DY 365",
+    "category": "News",
+    "languages": [
+      "Assamese"
+    ],
+    "logo": "/live-logos/DY365.webp",
+    "url": "https://cdn.smartstream.video/smartstream-us/dy365/dy365/playlist.m3u8"
+  },
+  {
+    "id": "ETVBeats",
+    "feedId": "ETVBeats.in@HD",
+    "name": "ETV Beats",
+    "category": "Music",
+    "languages": [
+      "Telugu"
+    ],
+    "logo": "/live-logos/ETVBeats.webp",
+    "url": "https://cc-szivnms4rlah6.akamaized.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-szivnms4rlah6/WWBI/Amagi/ETV_Music_IN/playlist.m3u8"
+  },
+  {
+    "id": "ETVCinema",
+    "feedId": "ETVCinema.in@SD",
+    "name": "ETV Cinema",
+    "category": "Movies",
+    "languages": [
+      "Telugu"
+    ],
+    "logo": "/live-logos/ETVCinema.webp",
+    "url": "https://yupplivegcpusa.yuppcdn.net/100823/smil:etvcinema.smil/playlist.m3u8?hdnts=st=1735898689~exp=1835898688~acl=*~hmac=f5fe24724fe05481e3841f9eb5ab8efdee0a3dd83645ae9dcf45703f525bab7b"
+  },
+  {
+    "id": "ETVComedy",
+    "feedId": "ETVComedy.in@HD",
+    "name": "ETV Comedy",
+    "category": "Comedy",
+    "languages": [
+      "Telugu"
+    ],
+    "logo": "/live-logos/ETVComedy.webp",
+    "url": "https://cc-wie8j8y69d2uy.akamaized.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-wie8j8y69d2uy/WWBI/Amagi/ETV_Comedy_IN/playlist.m3u8"
+  },
+  {
+    "id": "ETVLife",
+    "feedId": "ETVLife.in@SD",
+    "name": "ETV Life",
+    "category": "Lifestyle",
+    "languages": [
+      "Telugu"
+    ],
+    "logo": "/live-logos/ETVLife.webp",
+    "url": "https://d2dgecfolnmfcv.cloudfront.net/v1/master/9d43eacaed199f8d5883927e7aef514a8a08e108/ETV_LIFE_H264-5_cloud_in/index.m3u8"
+  },
+  {
+    "id": "ETVPlus",
+    "feedId": "ETVPlus.in@SD",
+    "name": "ETV Plus",
+    "category": "Entertainment",
+    "languages": [
+      "Telugu"
+    ],
+    "logo": "/live-logos/ETVPlus.webp",
+    "url": "https://yupplivegcpusa.yuppcdn.net/100823/smil:etvplus.smil/playlist.m3u8?hdnts=st=1735898689~exp=1835898688~acl=*~hmac=f5fe24724fe05481e3841f9eb5ab8efdee0a3dd83645ae9dcf45703f525bab7b"
+  },
+  {
+    "id": "ETVTelugu",
+    "feedId": "ETVTelugu.in@HD",
+    "name": "ETV Telugu",
+    "category": "Entertainment",
+    "languages": [
+      "Telugu"
+    ],
+    "logo": "/live-logos/ETVTelugu.webp",
+    "url": "https://d1qkhu31k9gfli.cloudfront.net/v1/a801314f85894ba289029d23aae579a7/airt16KSW.m3u8"
+  },
+  {
+    "id": "FoodFood",
+    "feedId": "FoodFood.in@SD",
+    "name": "Food Food",
+    "category": "Cooking",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/FoodFood.webp",
+    "url": "https://d2lk5u59tns74c.cloudfront.net/out/v1/ffc601b3dc8d41c5b09115702538d75a/index.m3u8"
+  },
+  {
+    "id": "Goldmines2",
+    "feedId": "Goldmines2.in@SD",
+    "name": "Goldmines 2",
+    "category": "Movies",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "",
+    "url": "https://mumt03.tangotv.in/Dsly5z3HGOLDMINES2/index.m3u8"
+  },
+  {
+    "id": "Gyandarshan",
+    "feedId": "Gyandarshan.in@SD",
+    "name": "Gyandarshan",
+    "category": "Education",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/Gyandarshan.webp",
+    "url": "https://cdn.pishow.tv/ott/live/14/master.m3u8"
+  },
+  {
+    "id": "IndiaTV",
+    "feedId": "IndiaTV.in@SD",
+    "name": "India TV",
+    "category": "News",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/IndiaTV.webp",
+    "url": "https://vg-indiatv-waves.vgcdn.net/vglive-sk-394591/playlist.m3u8"
+  },
+  {
+    "id": "IsaiAruvi",
+    "feedId": "IsaiAruvi.in@SD",
+    "name": "Isai Aruvi",
+    "category": "Music",
+    "languages": [
+      "Tamil"
+    ],
+    "logo": "/live-logos/IsaiAruvi.webp",
+    "url": "https://segment.yuppcdn.net/140622/isaiaruvi/playlist.m3u8"
+  },
+  {
+    "id": "Jonack",
+    "feedId": "Jonack.in@SD",
+    "name": "Jonack",
+    "category": "General",
+    "languages": [
+      "Assamese"
+    ],
+    "logo": "/live-logos/Jonack.webp",
+    "url": "https://cdn.pishow.tv/ott/live/10006/master.m3u8"
+  },
+  {
+    "id": "Kabaddi24x7",
+    "feedId": "Kabaddi24x7.in@SD",
+    "name": "Kabaddi 24x7",
+    "category": "Sports",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/Kabaddi24x7.webp",
+    "url": "https://samitaorigin.tangotv.in/KABADDI24X7/SAMITAORIGIN/index.m3u8"
+  },
+  {
+    "id": "KairaliTV",
+    "feedId": "KairaliTV.in@SD",
+    "name": "Kairali TV",
+    "category": "General",
+    "languages": [
+      "Malayalam"
+    ],
+    "logo": "",
+    "url": "https://mumt01.tangotv.in/O5aw8Zn3KAIRALI/index.m3u8"
+  },
+  {
+    "id": "KalaignarTV",
+    "feedId": "KalaignarTV.in@SD",
+    "name": "Kalaignar TV",
+    "category": "General",
+    "languages": [
+      "Tamil"
+    ],
+    "logo": "/live-logos/KalaignarTV.webp",
+    "url": "https://segment.yuppcdn.net/240122/kalaignartv/playlist.m3u8"
+  },
+  {
+    "id": "KalingaTV",
+    "feedId": "KalingaTV.in@SD",
+    "name": "Kalinga TV",
+    "category": "News",
+    "languages": [
+      "Odia"
+    ],
+    "logo": "/live-logos/KalingaTV.webp",
+    "url": "https://server.thelegitpro.in/kalingatv/kalingatv/index.m3u8"
+  },
+  {
+    "id": "KanakNews",
+    "feedId": "KanakNews.in@SD",
+    "name": "Kanak News",
+    "category": "News",
+    "languages": [
+      "Odia"
+    ],
+    "logo": "/live-logos/KanakNews.webp",
+    "url": "https://d1msejlow1t3l4.cloudfront.net/fta/kanaknews/playlist.m3u8"
+  },
+  {
+    "id": "KiteVicters",
+    "feedId": "KiteVicters.in@SD",
+    "name": "Kite Victers",
+    "category": "Education",
+    "languages": [
+      "Malayalam"
+    ],
+    "logo": "",
+    "url": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/playlist.m3u8"
+  },
+  {
+    "id": "MakkalTV",
+    "feedId": "MakkalTV.in@SD",
+    "name": "Makkal TV",
+    "category": "General",
+    "languages": [
+      "Tamil"
+    ],
+    "logo": "/live-logos/MakkalTV.webp",
+    "url": "https://5k8q87azdy4v-hls-live.wmncdn.net/MAKKAL/271ddf829afeece44d8732757fba1a66.sdp/playlist.m3u8"
+  },
+  {
+    "id": "ManoramaNews",
+    "feedId": "ManoramaNews.in@SD",
+    "name": "Manorama News",
+    "category": "News",
+    "languages": [
+      "Malayalam"
+    ],
+    "logo": "",
+    "url": "https://mmtvlive3.akamaized.net/v1/master/673630b269b766886555eebfddd4f27f3de3ab50/mmtvAdCampaign3/index.m3u8"
+  },
+  {
+    "id": "Mastiii",
+    "feedId": "Mastiii.in@SD",
+    "name": "Mastiii",
+    "category": "Music",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "",
+    "url": "https://mumbai-edge.smartplaytv.in/MastiMusic/index.m3u8"
+  },
+  {
+    "id": "MazhavilManorama",
+    "feedId": "MazhavilManorama.in@SD",
+    "name": "Mazhavil Manorama",
+    "category": "Entertainment",
+    "languages": [
+      "Malayalam"
+    ],
+    "logo": "",
+    "url": "https://cdn.pishow.tv/ott/live/1479/master.m3u8"
+  },
+  {
+    "id": "News18AssamNorthEast",
+    "feedId": "News18AssamNorthEast.in@SD",
+    "name": "News18 Assam North-East",
+    "category": "News",
+    "languages": [
+      "Assamese",
+      "English"
+    ],
+    "logo": "/live-logos/News18AssamNorthEast.webp",
+    "url": "https://n18syndication.akamaized.net/bpk-tv/News18_Assam_North_East_NW18_MOB/output01/master.m3u8"
+  },
+  {
+    "id": "News18India",
+    "feedId": "News18India.in@SD",
+    "name": "News18 India",
+    "category": "News",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/News18India.webp",
+    "url": "https://n18syndication.akamaized.net/bpk-tv/News18_India_NW18_MOB/output01/master.m3u8"
+  },
+  {
+    "id": "News18Urdu",
+    "feedId": "News18Urdu.in@SD",
+    "name": "News18 Urdu",
+    "category": "News",
+    "languages": [
+      "Urdu"
+    ],
+    "logo": "",
+    "url": "https://n18syndication.akamaized.net/bpk-tv/News18_Urdu_NW18_MOB/output01/master.m3u8"
+  },
+  {
+    "id": "OdishaTV",
+    "feedId": "OdishaTV.in@SD",
+    "name": "Odisha TV",
+    "category": "Culture",
+    "languages": [
+      "Odia"
+    ],
+    "logo": "/live-logos/OdishaTV.webp",
+    "url": "https://livetv.tarangplus.in/otv-origin/live/playlist.m3u8"
+  },
+  {
+    "id": "Pitaara",
+    "feedId": "Pitaara.in@SD",
+    "name": "Pitaara",
+    "category": "Movies",
+    "languages": [
+      "Punjabi"
+    ],
+    "logo": "/live-logos/Pitaara.webp",
+    "url": "https://d2lk5u59tns74c.cloudfront.net/out/v1/500a6b45f5ae41dda445d912b59eaa09/index.m3u8"
+  },
+  {
+    "id": "PTCPunjabi",
+    "feedId": "PTCPunjabi.in@SD",
+    "name": "PTC Punjabi",
+    "category": "Entertainment",
+    "languages": [
+      "Punjabi"
+    ],
+    "logo": "/live-logos/PTCPunjabi.webp",
+    "url": "https://cdn.pishow.tv/ott/live/1604/master.m3u8"
+  },
+  {
+    "id": "PTCPunjabiGold",
+    "feedId": "PTCPunjabiGold.in@SD",
+    "name": "PTC Punjabi Gold",
+    "category": "Entertainment",
+    "languages": [
+      "Punjabi"
+    ],
+    "logo": "/live-logos/PTCPunjabiGold.webp",
+    "url": "https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/6e14bac6d0384e129521a4d005188bfb/index.m3u8"
+  },
+  {
+    "id": "PunjabiHits",
+    "feedId": "PunjabiHits.in@SD",
+    "name": "Punjabi Hits",
+    "category": "Music",
+    "languages": [
+      "Punjabi"
+    ],
+    "logo": "/live-logos/PunjabiHits.webp",
+    "url": "https://legitpro.co.in/punjabihits/punjabihits/index.m3u8"
+  },
+  {
+    "id": "SangeetMarathi",
+    "feedId": "SangeetMarathi.in@SD",
+    "name": "Sangeet Marathi",
+    "category": "Music",
+    "languages": [
+      "Marathi"
+    ],
+    "logo": "/live-logos/SangeetMarathi.webp",
+    "url": "https://cdn.pishow.tv/ott/live/1229/master.m3u8"
+  },
+  {
+    "id": "SansadTV1",
+    "feedId": "SansadTV1.in@HD",
+    "name": "Sansad TV 1",
+    "category": "Legislative",
+    "languages": [
+      "Hindi",
+      "English"
+    ],
+    "logo": "/live-logos/SansadTV1.webp",
+    "url": "https://d2lk5u59tns74c.cloudfront.net/out/v1/fff8f20221d5456e8922e689d71dedc3/index.m3u8"
+  },
+  {
+    "id": "SansadTV2",
+    "feedId": "SansadTV2.in@SD",
+    "name": "Sansad TV 2",
+    "category": "Legislative",
+    "languages": [
+      "Hindi",
+      "English"
+    ],
+    "logo": "/live-logos/SansadTV2.webp",
+    "url": "https://cdn.pishow.tv/ott/live/39/master.m3u8"
+  },
+  {
+    "id": "ShemarooFilmiGaane",
+    "feedId": "ShemarooFilmiGaane.in@HD",
+    "name": "Shemaroo Filmi Gaane",
+    "category": "Movies",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/ShemarooFilmiGaane.webp",
+    "url": "https://prod-runn.cdn.runn.tv/shemaroo/stream/smrfgn/playlist.m3u8"
+  },
+  {
+    "id": "SiriKannada",
+    "feedId": "SiriKannada.in@SD",
+    "name": "Siri Kannada",
+    "category": "Entertainment",
+    "languages": [
+      "Kannada"
+    ],
+    "logo": "/live-logos/SiriKannada.webp",
+    "url": "https://mumt03.tangotv.in/Dsly5z3HSIRIKANNADA/index.m3u8"
+  },
+  {
+    "id": "TarangMusic",
+    "feedId": "TarangMusic.in@SD",
+    "name": "Tarang Music",
+    "category": "Music",
+    "languages": [
+      "Odia"
+    ],
+    "logo": "",
+    "url": "https://livetv.tarangplus.in/tarangmusic-origin/live/playlist.m3u8"
+  },
+  {
+    "id": "TarangTV",
+    "feedId": "TarangTV.in@SD",
+    "name": "Tarang TV",
+    "category": "Entertainment",
+    "languages": [
+      "Odia"
+    ],
+    "logo": "/live-logos/TarangTV.webp",
+    "url": "https://livetv.tarangplus.in/tarangtv-origin/live/playlist.m3u8"
+  },
+  {
+    "id": "TheJungleBook",
+    "feedId": "TheJungleBook.in@SD",
+    "name": "The Jungle Book",
+    "category": "Kids",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/TheJungleBook.webp",
+    "url": "https://cc-4bhi5osabejc9.akamaized.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-4bhi5osabejc9/junglebook.m3u8"
+  },
+  {
+    "id": "TV9Bangla",
+    "feedId": "TV9Bangla.in@SD",
+    "name": "TV9 Bangla",
+    "category": "News",
+    "languages": [
+      "Bengali"
+    ],
+    "logo": "/live-logos/TV9Bangla.webp",
+    "url": "https://amg01106-amg01106c1-amgplt0747.playout.now3.amagi.tv/amg01106c1/hls.m3u8"
+  },
+  {
+    "id": "TV9Gujarati",
+    "feedId": "TV9Gujarati.in@SD",
+    "name": "TV9 Gujarati",
+    "category": "News",
+    "languages": [
+      "Gujarati"
+    ],
+    "logo": "/live-logos/TV9Gujarati.webp",
+    "url": "https://amg01106-amg01106c6-amgplt0747.playout.now3.amagi.tv/amg01106c6/hls.m3u8"
+  },
+  {
+    "id": "TV9Marathi",
+    "feedId": "TV9Marathi.in@SD",
+    "name": "TV9 Marathi",
+    "category": "News",
+    "languages": [
+      "Marathi"
+    ],
+    "logo": "/live-logos/TV9Marathi.webp",
+    "url": "https://amg01106-amg01106c7-amgplt0747.playout.now3.amagi.tv/amg01106c7/hls.m3u8"
+  },
+  {
+    "id": "VyasChannel",
+    "feedId": "VyasChannel.in@SD",
+    "name": "Vyas Channel",
+    "category": "Education",
+    "languages": [
+      "English"
+    ],
+    "logo": "",
+    "url": "https://playhls.media.nic.in/hls/live/vyas/vyas.m3u8"
+  },
+  {
+    "id": "WOWKidz",
+    "feedId": "WOWKidz.in@Hindi",
+    "name": "WOW Kidz",
+    "category": "Animation",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "/live-logos/WOWKidz.webp",
+    "url": "https://yuppparoriglin.akamaized.net/181224/smil:wowkidzhindi.smil/playlist.m3u8?hdnts=st=1735898689~exp=1835898688~acl=*~hmac=f5fe24724fe05481e3841f9eb5ab8efdee0a3dd83645ae9dcf45703f525bab7b"
+  },
+  {
+    "id": "YRFMusic",
+    "feedId": "YRFMusic.in@SD",
+    "name": "YRF Music",
+    "category": "Music",
+    "languages": [
+      "Hindi"
+    ],
+    "logo": "",
+    "url": "https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg01412-xiaomiasia-yrfmusic-xiaomi/playlist.m3u8"
+  },
+  {
+    "id": "ZBMusic",
+    "feedId": "ZBMusic.in@HD",
+    "name": "ZB Music",
+    "category": "Music",
+    "languages": [
+      "Bengali"
+    ],
+    "logo": "/live-logos/ZBMusic.webp",
+    "url": "https://server.zillarbarta.com/zbmusic/index.m3u8"
+  }
+]

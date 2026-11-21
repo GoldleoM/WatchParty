@@ -28,7 +28,7 @@ export function Screen({ room, host, url, onBuffer, reactions, onEnded }: Props)
   const [clock, setClock] = useState(0);
   const [captionName, setCaptionName] = useState('');
   const frame = useRef<HTMLDivElement>(null);
-  const { publish, resync, error } = useVideoSync(room, host, media);
+  const { publish, resync, error, buffered, away, jumpToGroup, togglePlayback } = useVideoSync(room, host, media);
   const Player = room.videoType === 'youtube' ? YouTubePlayer : HTML5Player;
   useEffect(() => {
     if (!media || !cues.length) return;
@@ -65,7 +65,7 @@ export function Screen({ room, host, url, onBuffer, reactions, onEnded }: Props)
         void fullscreen();
       } else if (host && event.key === ' ') {
         event.preventDefault();
-        if (media.playing()) media.pause(); else media.play();
+        togglePlayback();
       } else if (host && (event.key === 'ArrowRight' || event.key === 'ArrowLeft')) {
         event.preventDefault();
         media.seek(Math.max(0, Math.min(media.duration(), media.time() + (event.key === 'ArrowRight' ? 5 : -5))));
@@ -73,14 +73,14 @@ export function Screen({ room, host, url, onBuffer, reactions, onEnded }: Props)
     }
     window.addEventListener('keydown', shortcut);
     return () => window.removeEventListener('keydown', shortcut);
-  }, [media, host, fullscreen, failure]);
+  }, [media, host, fullscreen, failure, togglePlayback]);
   return <>
     <div className="screen-wrap" ref={frame}>
       <div className="screen">
         <Player key={load} url={url} host={host} onEnded={onEnded} onReady={setMedia} onChange={() => {
           if (media?.playing()) setBlocked(false);
           if (host) publish();
-        }} onBuffer={onBuffer} onBlocked={() => setBlocked(true)} onError={setFailure} />
+        }} onBuffer={waiting => { buffered(waiting); onBuffer(waiting); }} onBlocked={() => setBlocked(true)} onError={setFailure} />
         {failure ? <div className="screen-prompt"><p role="alert">{failure}</p>
           <button className="btn secondary" onClick={() => { setMedia(null); setFailure(''); setBlocked(false); setMuted(false); setLoad(load + 1); }}>Retry video</button></div> :
           blocked && room.playing && <div className="screen-prompt"><button className="btn primary" onClick={resync}><MdPlayArrow /> Enable playback</button></div>}
@@ -88,9 +88,10 @@ export function Screen({ room, host, url, onBuffer, reactions, onEnded }: Props)
         <div className="floating-reactions" aria-hidden="true">{reactions.map(r => <span key={r.id}>{r.emoji}</span>)}</div>
       </div>
       <div className="playbar">
-        {host ? <button className="btn secondary" disabled={!media || !!failure} onClick={() => media?.playing() ? media.pause() : media?.play()}>
-          {room.playing ? <MdPause /> : <MdPlayArrow />}{room.playing ? 'Pause' : 'Play'}</button> :
-          <span className="play-status">{room.playing ? 'Playing in sync' : 'Paused by host'}</span>}
+        {host && <button className="btn secondary" disabled={!media || !!failure} onClick={togglePlayback}>
+          {room.playing ? <MdPause /> : <MdPlayArrow />}{room.playing ? 'Pause' : 'Play'}</button>}
+        {away && !failure ? <button className="btn secondary" onClick={jumpToGroup}>Jump to group</button> :
+          (!host || room.playing) && <span className="play-status">{room.playing ? 'With group' : 'Paused by host'}</span>}
         <div className="play-tools">
           {!host && room.videoType !== 'youtube' && <button aria-label={muted ? 'Unmute video' : 'Mute video'} disabled={!media} onClick={() => { media?.mute(!muted); setMuted(!muted); }}>{muted ? <MdVolumeOff /> : <MdVolumeUp />}</button>}
           <label className="file-control" title="Load subtitles"><input type="file" accept=".srt,.vtt" className="visually-hidden" aria-label="Load subtitles" onChange={captions} /><MdClosedCaption /></label>

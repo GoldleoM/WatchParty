@@ -7,11 +7,14 @@ import { AccountGate } from './components/AccountGate';
 const CreateRoom = lazy(() => import('./pages/CreateRoom').then(m => ({ default: m.CreateRoom })));
 const Room = lazy(() => import('./pages/Room').then(m => ({ default: m.Room })));
 
+const LiveTV = lazy(() => import('./pages/LiveTV').then(m => ({ default: m.LiveTV })));
+
 export default function App() {
   return <AuthProvider><BrowserRouter>
     <a className="skip-link" href="#main">Skip to content</a><Navbar />
     <main id="main"><Suspense fallback={<p className="loading-state" role="status">Loading…</p>}>
       <Routes>
+        <Route path="/live" element={<LiveTV />} />
         <Route path="/" element={<Home />} /><Route path="/create" element={<AccountGate><CreateRoom /></AccountGate>} />
         <Route path="/room/:roomId" element={<AccountGate><Room /></AccountGate>} />
         <Route path="/account" element={<AccountGate><Navigate to="/" replace /></AccountGate>} />
