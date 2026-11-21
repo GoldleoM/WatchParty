@@ -6,25 +6,32 @@ import { LivePlayer } from '../components/video/LivePlayer';
 
 type Channel = typeof catalogue[number];
 const directory = 'https://iptv-org.github.io/iptv/countries/in.m3u';
-const languages = [...new Set(catalogue.flatMap(c => c.languages))].sort();
-const categories = [...new Set(catalogue.map(c => c.category))].sort();
+const knownFeeds = new Map(catalogue.map(channel => [channel.feedId, channel]));
 
 function refreshChannels(text: string): Channel[] {
-  const streams = new Map<string, string>();
+  const streams = new Map<string, Channel>();
   for (const entry of text.split(/^#EXTINF:/m).slice(1)) {
     const [info, ...lines] = entry.trim().split(/\r?\n/);
-    const id = /tvg-id="([^"]+)"/.exec(info)?.[1];
-    const url = lines.find(line => line.startsWith('https://'));
-    if (id && url && /\.m3u8(?:\?|$)/i.test(url) && !/http-(?:referrer|user-agent)|#KODIPROP|#EXTVLCOPT/i.test(entry)) {
-      if (!streams.has(id)) streams.set(id, url.trim());
-    }
+    const feedId = /tvg-id="([^"]+)"/.exec(info)?.[1];
+    if (!feedId) continue;
+    const direct = lines.find(line => /^https:\/\/.*\.m3u8(?:\?|$)/i.test(line));
+    const url = /http-(?:referrer|user-agent)|#KODIPROP|#EXTVLCOPT/i.test(entry) ? '' : direct?.trim() || '';
+    if (streams.get(feedId)?.url) continue;
+    const known = knownFeeds.get(feedId);
+    const channel = known || {
+      id: feedId, feedId, name: info.slice(info.lastIndexOf('",') + 2),
+      logo: /tvg-logo="(https:[^"]+)"/.exec(info)?.[1] || '',
+      category: /group-title="([^";]+)/.exec(info)?.[1] || 'General', languages: [],
+    };
+    streams.set(feedId, { ...channel, url });
   }
-  return catalogue.filter(c => streams.has(c.feedId)).map(c => ({ ...c, url: streams.get(c.feedId)! }));
+  const featured = catalogue.flatMap(c => streams.get(c.feedId) || []);
+  return [...featured, ...Array.from(streams.values()).filter(c => !knownFeeds.has(c.feedId))];
 }
 
 function Logo({ channel }: { channel: Channel }) {
   return <span className="station-logo" aria-hidden="true"><b>{channel.name.split(' ').map(w => w[0]).slice(0, 3).join('')}</b>
-    {channel.logo && <img src={channel.logo} alt="" onError={e => { e.currentTarget.hidden = true; }} />}</span>;
+    {channel.logo && <img loading="lazy" src={channel.logo} alt="" onError={e => { e.currentTarget.hidden = true; }} />}</span>;
 }
 
 export function LiveTV() {
@@ -37,7 +44,7 @@ export function LiveTV() {
   const [saved, setSaved] = useState<string[]>(() => {
     try {
       const ids: unknown = JSON.parse(localStorage.getItem('watchparty-tv-favorites') || '[]');
-      return Array.isArray(ids) ? ids.filter(id => catalogue.some(c => c.id === id)) : [];
+      return Array.isArray(ids) ? ids.filter(id => typeof id === 'string') : [];
     } catch { return []; }
   });
   const [copy, setCopy] = useState<'idle' | 'copied' | 'manual'>('idle');
@@ -71,6 +78,8 @@ export function LiveTV() {
     setParams({ channel: id });
     if (window.matchMedia('(max-width: 760px)').matches) document.getElementById('broadcast')?.scrollIntoView({ block: 'start' });
   }
+  const languages = [...new Set(channels.flatMap(c => c.languages))].sort();
+  const categories = [...new Set(channels.map(c => c.category))].sort();
   const query = search.toLowerCase().trim();
   const visible = channels.filter(c => (!language || c.languages.includes(language)) && (!category || c.category === category)
     && (!savedOnly || saved.includes(c.id)) && [c.name, c.category, ...c.languages].join(' ').toLowerCase().includes(query));
@@ -78,7 +87,8 @@ export function LiveTV() {
     <header className="tv-heading"><h1>Indian live TV</h1><p>Choose a channel and tune in to its live broadcast.</p></header>
     <div className="tv-grid">
       <section className="tv-theater panel" id="broadcast" aria-label="Selected channel">
-        {tuned ? <LivePlayer key={tuned.id} url={tuned.url} name={tuned.name} /> :
+        {tuned && !tuned.url ? <div className="channel-intro"><Logo channel={tuned} /><h2>{tuned.name}</h2>
+          <p>This feed requires an external IPTV player.</p><a className="btn secondary" href={directory}>Open India playlist</a></div> : tuned ? <LivePlayer key={tuned.id} url={tuned.url} name={tuned.name} /> :
           <div className="channel-intro"><Logo channel={selected} /><h2>{selected.name}</h2>
             <button className="btn primary" onClick={() => tune(selected.id)}><MdPlayArrow /> Watch live</button></div>}
         <div className="station-heading"><div><h2>{selected.name}</h2><p>{selected.category} · {selected.languages.join(' / ')}</p></div>
@@ -90,7 +100,7 @@ export function LiveTV() {
         }}><MdContentCopy /> {copy === 'copied' ? 'Channel link copied' : 'Share channel'}</button>
         {copy === 'manual' && <input aria-label="Channel link" readOnly value={share.href} onFocus={e => e.target.select()} />}</div>
       </section>
-      <section className="panel channel-guide"><h2><MdLiveTv /> Channel guide</h2>
+      <section className="panel channel-guide" style={{ minWidth: 0, overflowWrap: 'anywhere' }}><h2><MdLiveTv /> Channel guide</h2>
         <div className="channel-filters">
           <label className="channel-search"><MdSearch /><input aria-label="Search channels" type="search" value={search} placeholder="Search channels" onChange={e => setSearch(e.target.value)} /></label>
           <select aria-label="Filter by language" value={language} onChange={e => setLanguage(e.target.value)}><option value="">All languages</option>{languages.map(l => <option key={l}>{l}</option>)}</select>

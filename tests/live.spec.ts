@@ -7,7 +7,7 @@ test('a mobile viewer can find, save and reopen an Indian channel when its strea
   await page.goto('/');
   await page.getByRole('link', { name: /Indian live TV/ }).click();
   await page.getByLabel('Filter by language').selectOption('Tamil');
-  await page.getByLabel('Search channels').fill('DD Tamil');
+  await page.getByLabel('Search channels').fill('DD Tamil HD');
   const station = page.locator('.station-list button');
   await expect(station).toHaveCount(1);
   await station.click();
