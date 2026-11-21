@@ -11,7 +11,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,8 +27,16 @@ jobs:
         continue-on-error: true
         run: python scripts/refresh-film-feed.py
       - name: Publish refreshed lists
+        if: always() && steps.refresh.outcome != 'skipped'
         run: |
-          git add public/daily-films.json
+          if [ "$(date -u +%u)" = "7" ]; then
+            python scripts/refresh-catalog.py --full --details 65
+          else
+            python scripts/refresh-catalog.py --details 65
+          fi
+      - name: Save refreshed catalog and daily lists
+        run: |
+          git add public/daily-films.json public/movie-catalog.json public/movie-releases.json
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
