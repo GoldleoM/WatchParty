@@ -30,9 +30,9 @@ jobs:
         if: always() && steps.refresh.outcome != 'skipped'
         run: |
           if [ "$(date -u +%u)" = "7" ]; then
-            python scripts/refresh-catalog.py --full --details 65
+            python scripts/refresh-catalog.py --full --details 65 --groups 360
           else
-            python scripts/refresh-catalog.py --details 65
+            python scripts/refresh-catalog.py --details 65 --groups 360
           fi
       - name: Save refreshed catalog and daily lists
         run: |

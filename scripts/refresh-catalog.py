@@ -46,10 +46,9 @@ def page(number):
     return rows
 
 
-def choices(item):
+def release_groups(item):
     doc = soup(ROOT + item["id"] + "/")
     groups = {}
-    editions = {}
     for a in doc.find_all("a", href=NUMBER):
         label = a.get_text(" ", strip=True)
         h = a.find_previous(HEADINGS)
@@ -57,6 +56,17 @@ def choices(item):
         if re.search(r"\b(?:zip|batch|pack)\b", label + " " + context, re.I):
             continue
         groups.setdefault(a["href"], context)
+    return groups
+
+
+def choices(item, detailed=True):
+    groups = release_groups(item)
+    options = [{"id": url.rstrip("/").rsplit("/", 1)[1], "label": context or "Release options"}
+               for url, context in groups.items()]
+    result = {"groups": list(groups), "options": options}
+    if not detailed:
+        return result
+    editions = {}
     for url, context in groups.items():
         season = re.search(r"\b(?:Season\s*|S)(\d+)\b", context, re.I)
         context_quality = QUALITY.search(context)
@@ -75,7 +85,7 @@ def choices(item):
             editions[a["href"]] = {"quality": quality[:110] or "Original file", "hub": a["href"],
                                    "season": int(season[1]) if season and episode else None,
                                    "episode": int(episode[1]) if episode else None}
-    return {"groups": list(groups), "editions": list(editions.values())}
+    return {**result, "editions": list(editions.values())}
 
 
 def load(path):
@@ -92,6 +102,7 @@ def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pages", type=int, default=8)
     parser.add_argument("--details", type=int, default=24)
+    parser.add_argument("--groups", type=int, default=0)
     parser.add_argument("--full", action="store_true")
     args = parser.parse_args()
     last_page = args.pages
@@ -122,18 +133,20 @@ def run():
         rows.setdefault(item["id"], item)
     save(INDEX, {"updated": stamp, "items": list(rows.values())})
     print(f"Indexed {len(rows)} movies and series", flush=True)
-    if not args.details:
+    if not args.details and not args.groups:
         return
     releases = load(RELEASES).get("items", {})
     daily = load(PUBLIC / "daily-films.json")
     picks = [item["page"].removeprefix(ROOT).strip("/") for batch in daily.values() for item in batch["items"]]
     ids = list(dict.fromkeys(list(rows)[:12] + picks + [key for key in rows if key not in releases]))[:args.details]
+    detail_ids = set(ids)
+    ids += [key for key in rows if key not in releases and key not in detail_ids][:args.groups]
 
     def read_choices(key):
         if key not in rows:
             return
         try:
-            releases[key] = choices(rows[key])
+            releases[key] = choices(rows[key], key in detail_ids)
         except (ValueError, requests.RequestException) as exc:
             print(f"Release {key}: {type(exc).__name__}", file=sys.stderr)
 
