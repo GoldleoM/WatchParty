@@ -1,6 +1,6 @@
 {
   "trending": {
-    "checkedAt": "2026-11-22T09:43:50+00:00",
+    "checkedAt": "2026-11-23T10:43:18+00:00",
     "items": [
       {
         "title": "The Odyssey",
@@ -48,8 +48,16 @@
     ]
   },
   "recent": {
-    "checkedAt": "2026-11-22T09:43:50+00:00",
+    "checkedAt": "2026-11-23T10:43:18+00:00",
     "items": [
+      {
+        "title": "Clashing Through the Snow – Amazon Prime",
+        "year": "2026",
+        "source": "Movies4u",
+        "page": "https://new8.movies4u.garden/clashing-through-the-snow-amazon-prime-2026-web-dl-multi-audio-full-movie/",
+        "image": "https://image.tmdb.org/t/p/w200/95K1Y96ELBDL3M8kyTVb5wocCtX.jpg",
+        "downloadOptions": "https://m4ulinks.xyz/number/72139"
+      },
       {
         "title": "O.M: Operation Mole",
         "year": "2026",
@@ -67,36 +75,28 @@
         "downloadOptions": "https://m4ulinks.xyz/number/71054"
       },
       {
+        "title": "Ruler",
+        "year": "2019",
+        "source": "Movies4u",
+        "page": "https://new8.movies4u.garden/ruler-2019-web-dl-dual-audio-hindi-org-telugu-full-movie/",
+        "image": "https://image.tmdb.org/t/p/w200/n1HNjXi6lXu5augXjd8F41FCvxl.jpg",
+        "downloadOptions": "https://m4ulinks.xyz/number/9137"
+      },
+      {
+        "title": "Mechanic: Resurrection",
+        "year": "2016",
+        "source": "Movies4u",
+        "page": "https://new8.movies4u.garden/mechanic-resurrection-2016-bluray-multi-audio-full-movie/",
+        "image": "https://image.tmdb.org/t/p/w200/bG3Q6EFcngpPn7uPuQTzTuq9DgV.jpg",
+        "downloadOptions": "https://m4ulinks.xyz/number/72131"
+      },
+      {
         "title": "SAS: Rise of the Black Swan",
         "year": "2021",
         "source": "Movies4u",
         "page": "https://new8.movies4u.garden/sas-rise-of-the-black-swan-2021-web-dl-dual-audio-hindi-org-english-full-movie/",
         "image": "https://image.tmdb.org/t/p/w200/6Y9fl8tD1xtyUrOHV2MkCYTpzgi.jpg",
         "downloadOptions": "https://m4ulinks.xyz/number/72092"
-      },
-      {
-        "title": "Ever After",
-        "year": "2026",
-        "source": "Movies4u",
-        "page": "https://new8.movies4u.garden/ever-after-2026-web-dl-dual-audio-hindi-org-english-full-movie/",
-        "image": "https://image.tmdb.org/t/p/w200/yFbxKeNrOH2K4XnutCCq5cm318T.jpg",
-        "downloadOptions": "https://m4ulinks.xyz/number/72090"
-      },
-      {
-        "title": "Mayookha",
-        "year": "2026",
-        "source": "Movies4u",
-        "page": "https://new8.movies4u.garden/mayookha-2026-web-dl-multi-audio-full-movie/",
-        "image": "https://image.tmdb.org/t/p/w200/7DPJPa3IX8jgthqK8sSnENrVzhA.jpg",
-        "downloadOptions": "https://m4ulinks.xyz/number/72087"
-      },
-      {
-        "title": "In the Name of the King: A Dungeon Siege Tale",
-        "year": "2007",
-        "source": "Movies4u",
-        "page": "https://new8.movies4u.garden/in-the-name-of-the-king-a-dungeon-siege-tale-2007-bluray-dual-audio-hindi-org-english-full-movie/",
-        "image": "https://image.tmdb.org/t/p/w200/bbN1lmDk1PT0GsTFCy179sk5nIF.jpg",
-        "downloadOptions": "https://m4ulinks.xyz/number/72058"
       }
     ]
   }
